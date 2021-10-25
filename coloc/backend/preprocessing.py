@@ -5,6 +5,7 @@ import os
 from sklearn.cluster import KMeans
 from datetime import datetime
 import cv2
+from math import dist
 
 inputdict = {
     'in_path': './data/in/test.tiff',
@@ -50,7 +51,7 @@ def resize_ims(im_array):
     return np.asarray(im_arr)
 
 
-def rescale(im_2D, threshold=False):
+def normalise(im_2D, threshold=False):
     """Minmax rescale a 2D image
 
     :param im_2D: input array
@@ -82,12 +83,9 @@ def rescale_stack(im_3d, threshold=False):
     out = []
     s = 0
     for channel in [im_3d[:, :, i] for i in range(im_3d.shape[-1])]:
-        out.append(rescale(channel, threshold))
+        out.append(normalise(channel, threshold))
         s += 1
     return np.dstack(out)
-
-sourcefile="./data/input/colocsample1bRGB_BG.tif"
-threshold = 0.5
 
 def preprocess(sourcefile, threshold, visualise=True):
     im_arr=resize_ims(split(sourcefile))
@@ -105,27 +103,26 @@ def preprocess(sourcefile, threshold, visualise=True):
 
     return im_arr, scaled_ims
 
-original, preprocessed = preprocess(sourcefile, threshold, visualise=False)
-print(np.shape(original))
+""" ML section """
 
 def fit_clusters(im,num_clusters):
     mask= im >0
     im[mask]=1
     xrange,yrange=np.shape(im)
     out=[]
+    # Reconfigure kmeans to out xox1 cluster vectors + y prediction
     for x in range(xrange):
         for y in range(yrange):
             if im[x,y]==1:
-                out.append([x,y])
+                out.append([x,y])       # Check coordinates vs output in case it should be max - coord
 
-    kmeans = KMeans(n_clusters=num_clusters,n_init=10,init='k-means++').fit(out)
+    kmeans = KMeans(n_clusters=num_clusters,n_init=10,init='k-means++').fit(out)        # Add function to capture global distances for param optimisation
     
     return kmeans.cluster_centers_.astype(int)
 
-from math import dist
 
 def get_colocs(im,num_clusts,min_dist):
-    r,g=[im[:,:,i] for i in [0,1]]
+    r,g=[im[:,:,i] for i in [0,1]]      # Modify to use the full number of channels
     print("Getting clusters")
     r_clusters=fit_clusters(r,num_clusts)
     "Red clusters found"
@@ -133,7 +130,7 @@ def get_colocs(im,num_clusts,min_dist):
     "Green clusters founds"
     euc_dists={}
     n=1
-    for rclust in r_clusters:
+    for rclust in r_clusters:       # There might be a more logical way of doing this
         for gclust in g_clusters:
             if dist(rclust,gclust) < min_dist:
                 euc_dists["Pair %s"%(n)]={}
@@ -161,4 +158,8 @@ def plot_colocs(originals,preprocessed,num_clusts):
         
         plt.show()
 
+sourcefile="./data/input/colocsample1bRGB_BG.tif"
+threshold = 0.5
+original, preprocessed = preprocess(sourcefile, threshold, visualise=False)
+print(np.shape(original))
 plot_colocs(original[8:10],preprocessed[8:10],40)
