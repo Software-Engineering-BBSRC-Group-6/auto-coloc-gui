@@ -45,7 +45,7 @@ def reshape_im(sourcefile, timestamp):
     smallest_dim = min(im.size)
     im.resize([smallest_dim, smallest_dim], resample=Image.LANCZOS)
     resized_file_path = os.path.join(temp_dir_path, os.path.basename(filename))
-    
+
     im.save(resized_file_path)
 
     return resized_file_path
@@ -73,17 +73,17 @@ def split(sourcefile):
             im.save(names[i])
     return names
 
-
-def parse_ims(sourcefile):
+def parse_ims(sourcefile,outpath=False):
     """Load images from a stacked .tiff file
 
     :param sourcefile: source file
     :type sourcefile: string
 
     return: array of Z-stacked images"""
-
-    splitfiles = split(sourcefile)
-    im_arr = []
+    if not outpath:
+        outpath = "data/output"
+    splitfiles=split(sourcefile, outpath)
+    im_arr=[]
     for im in splitfiles:
         im_arr.append(np.asarray(Image.open(im)))
     return np.asarray(im_arr)
@@ -125,7 +125,6 @@ def rescale_stack(im_3d, threshold=False):
     return np.dstack(out)
 
 # Split source file
-
 
 sourcefile = "./data/input/colocsample1bRGB_BG.tif"
 threshold = 0.5
