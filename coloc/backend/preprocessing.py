@@ -9,8 +9,8 @@ import os
 def listfiles():
     return [file for file in os.listdir(os.getcwd())]
 
-def split(sourcefile):
-    '''Split input .tiff file into separate RGB files and save to a sub-directory
+def split(sourcefile,outpath):
+    '''Split input .tiff file into separate RGB files and save to an output directory
 
     :param sourcefile: input multi-image .tiff
     :type sourcefile: string
@@ -19,27 +19,26 @@ def split(sourcefile):
 
     im=Image.open(sourcefile)
     names=[]
-    if 'data' not in listfiles():
-        os.mkdir('data/')
-    files=[file for file in os.listdir(os.getcwd()+'/data')]
+    files=[file for file in os.listdir(outpath)]
     print(files)
     for i in range(32):    # Need to genericise this for any length of multiimage array
-        n='data/page_%s.tif'%(i,)
+        n=outpath+'/img_%s.tif'%(i,)
         if n not in files:
             names.append(n)
             im.seek(i)
             im.save(names[i])
     return names
 
-def parse_ims(sourcefile):
+def parse_ims(sourcefile,outpath=False):
     """Load images from a stacked .tiff file
     
     :param sourcefile: source file
     :type sourcefile: string
     
     return: array of Z-stacked images"""
-
-    splitfiles=split(sourcefile)
+    if not outpath:
+        outpath = "data/output"
+    splitfiles=split(sourcefile, outpath)
     im_arr=[]
     for im in splitfiles:
         im_arr.append(np.asarray(Image.open(im)))
@@ -81,7 +80,7 @@ def rescale_stack(im_3d,threshold=False):
 
 # Split source file
 
-sourcefile="colocsample1bRGB_BG.tif"
+sourcefile="data/input/colocsample1bRGB_BG.tif"
 threshold=0.5
 
 def preprocess(sourcefile,threshold,visualise=True):
@@ -103,6 +102,6 @@ original, preprocessed = preprocess(sourcefile,threshold,visualise=False)
 
 for image in preprocessed[8:10]:
     print(np.shape(image))
-    r,g = [image[:,:,i] for i in range(1)]
-    print(np.shape(r))
+    # r,g = [image[:,:,i] for i in range(1)]
+    # print(np.shape(r))
 
