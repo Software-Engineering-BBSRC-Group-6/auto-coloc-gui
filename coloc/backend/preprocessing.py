@@ -4,13 +4,13 @@ import matplotlib.pyplot as plt
 import os
 from sklearn.cluster import KMeans
 from datetime import datetime
+import cv2
 
 inputdict = {
     'in_path': './data/in/test.tiff',
     'out_path': './data/out/test.tiff',
     'threshold': 0.3
     }
-
 
 def generate_timestamp():
     """Generates a timestamp, based on the current time.
@@ -20,71 +20,33 @@ def generate_timestamp():
     timestamp = (datetime.now()).strftime('%Y%m%d-%H%M%S')
     return timestamp
 
-
 def listfiles():
     return [file for file in os.listdir(os.getcwd())]
 
-
-def reshape_im(sourcefile, timestamp):
-    """Reshapes an image such that the dimensions are square, using the dimension
-    of the smallest side.
-
-    :param sourcefile: input multi-image .tiff
-    :type sourcefile: string
-
-    :return resized_file_path: Path to the new, downsized file.
-    :type resized_file_path: string
-    """
-    im = Image.open(sourcefile)
-    temp_dir_path = os.path.join('./data/output/', timestamp + '/')
-    if not os.path.exists(temp_dir_paths):
-        os.mkdir(temp_dir_path)
-
-    # Find smallest dimension n and set image size to square n x n.
-    smallest_dim = min(im.size)
-    im.resize([smallest_dim, smallest_dim], resample=Image.LANCZOS)
-    resized_file_path = os.path.join(temp_dir_path, os.path.basename(filename))
-
-    im.save(resized_file_path)
-
-    return resized_file_path
-
-
 def split(sourcefile):
-    """Split input .tiff file into separate RGB files and save to a sub-directory
-
-    :param sourcefile: input multi-image .tiff
-    :type sourcefile: string
-
-    :return: list of file paths for image import'''
-    """
-    im = Image.open(sourcefile)
-    names = []
-    if 'data' not in listfiles():
-        os.mkdir('data/')
-    files = [file for file in os.listdir(os.getcwd()+'/data')]
-
-    for i in range(im.n_frames):
-        n = 'data/page_%s.tif' % (i,)
-        if n not in files:
-            names.append(n)
-            im.seek(i)
-            im.save(names[i])
-    return names
-
-def parse_ims(sourcefile,outpath=False):
     """Load images from a stacked .tiff file
 
     :param sourcefile: source file
     :type sourcefile: string
 
     return: array of Z-stacked images"""
-    if not outpath:
-        outpath = "data/output"
-    splitfiles=split(sourcefile, outpath)
+
+    im = Image.open(sourcefile)
+    out=[]
+    for i in range(im.n_frames):
+        im.seek(i)
+        out.append(np.asarray(im))
+    return np.asarray(out)
+
+
+def resize_ims(im_array):
+    """Resize images from a Z-stack"""
+
     im_arr=[]
-    for im in splitfiles:
-        im_arr.append(np.asarray(Image.open(im)))
+    for im in im_array:
+        smallest_dim = min(np.shape(im)[:2])
+        im=np.dstack([cv2.resize(im[:,:,i],dsize=(smallest_dim,smallest_dim), interpolation=cv2.INTER_CUBIC) for i in range(3)])
+        im_arr.append(im)
     return np.asarray(im_arr)
 
 
@@ -117,7 +79,6 @@ def rescale_stack(im_3d, threshold=False):
 
     :return: numpy array"""
 
-    stack = ['R', 'G', 'B']
     out = []
     s = 0
     for channel in [im_3d[:, :, i] for i in range(im_3d.shape[-1])]:
@@ -125,30 +86,27 @@ def rescale_stack(im_3d, threshold=False):
         s += 1
     return np.dstack(out)
 
-# Split source file
-
-sourcefile = "./data/input/colocsample1bRGB_BG.tif"
+sourcefile="./data/input/colocsample1bRGB_BG.tif"
 threshold = 0.5
 
-
 def preprocess(sourcefile, threshold, visualise=True):
-    im_arr = parse_ims(sourcefile)
+    im_arr=resize_ims(split(sourcefile))
     scaled_ims = np.asarray(
         [rescale_stack(im, threshold=threshold) for im in im_arr])
-    s = 0
+
     if visualise:
-        for i in range(len(im_arr)):
+        for s,i in enumerate(len(im_arr)):
             plt.imshow(im_arr[i])
             plt.title("Original image %s" % (str(s+1)))
             plt.show()
             plt.imshow(scaled_ims[i])
             plt.title("Processed image %s" % (str(s+1)))
             plt.show()
-            s += 1
+
     return im_arr, scaled_ims
 
-
 original, preprocessed = preprocess(sourcefile, threshold, visualise=False)
+print(np.shape(original))
 
 def fit_clusters(im,num_clusters):
     mask= im >0
@@ -160,16 +118,19 @@ def fit_clusters(im,num_clusters):
             if im[x,y]==1:
                 out.append([x,y])
 
-    kmeans = KMeans(n_clusters=num_clusters, random_state=0).fit(out)
-    print("Clusters: ",np.shape(kmeans.cluster_centers_))
+    kmeans = KMeans(n_clusters=num_clusters,n_init=10,init='k-means++').fit(out)
+    
     return kmeans.cluster_centers_.astype(int)
 
 from math import dist
 
 def get_colocs(im,num_clusts,min_dist):
     r,g=[im[:,:,i] for i in [0,1]]
+    print("Getting clusters")
     r_clusters=fit_clusters(r,num_clusts)
+    "Red clusters found"
     g_clusters=fit_clusters(g,num_clusts)
+    "Green clusters founds"
     euc_dists={}
     n=1
     for rclust in r_clusters:
@@ -187,13 +148,17 @@ def plot_colocs(originals,preprocessed,num_clusts):
     for i,im in enumerate(preprocessed):
         fig, ax = plt.subplots(1,2)
         ax[0].imshow(originals[i])
-        euc_dists=get_colocs(im,num_clusts,min_dist=10)
+        # ax[0].axis('off')
+        euc_dists=get_colocs(im,num_clusts,min_dist=3)
+        print(euc_dists)
         ax[1].imshow(im)
         for pair in euc_dists.keys():
-            coords= tuple(euc_dists[pair]["G"])
+            coords= tuple(euc_dists[pair]["Avg"])
             circle= plt.Circle(coords,5,color='g',fill=False)
             ax[1].add_artist(circle)
+            # ax[1].axis('off')
+        circletest=plt.Circle((80,80),5,color='pink',fill=False)
         
         plt.show()
 
-plot_colocs(original[8:10],preprocessed[8:10],10)
+plot_colocs(original[8:10],preprocessed[8:10],40)
