@@ -45,32 +45,33 @@ class MyTableWidget(QWidget):
         self.openFile1Label = QLabel('Select Input Images (.tiff):')
         self.fileLabel1 = QLabel()
         self.fileLabel1.setMaximumWidth(100)
-        self.thresholdInput = QLineEdit()
-        self.thresholdInput.setPlaceholderText("0.1 <= Threshold <= 0.9")
-        self.thresholdLabel = QLabel('Input Threshold Value:') #Add a check that this is a float
-        self.dropdown1 = QComboBox()
-        self.dropdownLabel = QLabel('Select Colocalisation Statistic:')
+        self.thresholdDropdown = QComboBox()
+        self.thresholdLabel = QLabel('Select Threshold Value:') #Add a check that this is a float
+        self.statsDropdown = QComboBox()
+        self.statsDropdownLabel = QLabel('Select Colocalisation Statistic:')
         self.runButton = QPushButton("Run")
         self.cancelButton = QPushButton("Stop")
         
         self.tab1.layout.addWidget(self.openFile1, 1, 3)
         self.tab1.layout.addWidget(self.openFile1Label, 1, 2)
         self.tab1.layout.addWidget(self.fileLabel1, 1, 4)
-        self.tab1.layout.addWidget(self.thresholdInput, 2, 3)
+        self.tab1.layout.addWidget(self.thresholdDropdown, 2, 3)
         self.tab1.layout.addWidget(self.thresholdLabel, 2, 2)
-        self.tab1.layout.addWidget(self.dropdown1, 3, 3)
-        self.tab1.layout.addWidget(self.dropdownLabel, 3, 2)
+        self.tab1.layout.addWidget(self.statsDropdown, 3, 3)
+        self.tab1.layout.addWidget(self.statsDropdownLabel, 3, 2)
         self.tab1.layout.addWidget(self.runButton, 6, 6)
         self.tab1.layout.addWidget(self.cancelButton, 6, 5)
         self.tab1.setLayout(self.tab1.layout)
 
-        self.dropdown1.addItems(["--Statistical Method--", "Pearson ", "Spearman", "Wilcoxon"])
+        self.thresholdDropdown.addItems(["--Threshold Value--", "0.1 ", "0.2", "0.3", "0.4", "0.5 ", "0.6", "0.7", "0.8", "0.9"])
+        self.statsDropdown.addItems(["--Statistical Method--", "Pearson ", "Spearman", "Wilcoxon"])
 
-
+        #If all values are filled, activate run
         self.runButton.setDisabled(True)
         self.cancelButton.setDisabled(True)
 
         self.openFile1.clicked.connect(self.define_file_path)
+        self.runButton.clicked.connect(self.run_program)
         
         # Add tabs to widget
         self.layout.addWidget(self.tabs)
@@ -87,16 +88,12 @@ class MyTableWidget(QWidget):
         self.fileLabel1.setText('{}'.format(self.in_path))
         self.out_path = os.path.basename(self.in_path)
     
-    def define_directory_path(self):
-        self.out_path = QFileDialog.getExistingDirectory(self,"Choose Directory To Save","E:\\")
-    
-    def activate_save_output(self):
-        if self.checkBox1.isChecked():
-            self.openFile2.setDisabled(False)
-            self.openFile2Label.setDisabled(False)
-        else:
-            self.openFile2.setDisabled(True)
-            self.openFile2Label.setDisabled(True)
+    def run_program(self):
+        #create dict
+            # path_in; path_out; flt(threshold); stats
+        #Start spinny wheel/ progress bar
+        #Activate cancel 
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
