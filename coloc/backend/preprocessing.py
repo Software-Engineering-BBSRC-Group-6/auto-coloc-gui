@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from numpy.lib.index_tricks import ix_
 from numpy.lib.utils import source
 import os
-
+from sklearn.cluster import KMeans
 
 def listfiles():
     return [file for file in os.listdir(os.getcwd())]
@@ -20,7 +20,6 @@ def split(sourcefile,outpath):
     im=Image.open(sourcefile)
     names=[]
     files=[file for file in os.listdir(outpath)]
-    print(files)
     for i in range(32):    # Need to genericise this for any length of multiimage array
         n=outpath+'/img_%s.tif'%(i,)
         if n not in files:
@@ -68,9 +67,10 @@ def rescale_stack(im_3d,threshold=False):
     """Rescale RGB image using minmax rescaling
     
     :param im_3d: input RGB image
-    :type im_3d: numpy array"""
+    :type im_3d: numpy array
 
-    stack = ['R','G','B']
+    :return: numpy array"""
+
     out=[]
     s=0
     for channel in [im_3d[:,:,i] for i in range(im_3d.shape[-1])]:
@@ -100,8 +100,50 @@ def preprocess(sourcefile,threshold,visualise=True):
 
 original, preprocessed = preprocess(sourcefile,threshold,visualise=False)
 
-for image in preprocessed[8:10]:
-    print(np.shape(image))
-    # r,g = [image[:,:,i] for i in range(1)]
-    # print(np.shape(r))
+def fit_clusters(im,num_clusters):
+    mask= im >0
+    im[mask]=1
+    xrange,yrange=np.shape(im)
+    out=[]
+    for x in range(xrange):
+        for y in range(yrange):
+            if im[x,y]==1:
+                out.append([x,y])
 
+    kmeans = KMeans(n_clusters=num_clusters, random_state=0).fit(out)
+    print("Clusters: ",np.shape(kmeans.cluster_centers_))
+    return kmeans.cluster_centers_.astype(int)
+
+from math import dist
+
+def get_colocs(im,num_clusts,min_dist):
+    r,g=[im[:,:,i] for i in [0,1]]
+    r_clusters=fit_clusters(r,num_clusts)
+    g_clusters=fit_clusters(g,num_clusts)
+    euc_dists={}
+    n=1
+    for rclust in r_clusters:
+        for gclust in g_clusters:
+            if dist(rclust,gclust) < min_dist:
+                euc_dists["Pair %s"%(n)]={}
+                euc_dists["Pair %s"%(n)]["R"]=rclust
+                euc_dists["Pair %s"%(n)]["G"]=gclust
+                euc_dists["Pair %s"%(n)]["Dist"]=dist(rclust,gclust)
+                euc_dists["Pair %s"%(n)]["Avg"]=np.mean([rclust,gclust],axis=0).astype(int)
+                n+=1
+    return euc_dists
+
+def plot_colocs(originals,preprocessed,num_clusts):
+    for i,im in enumerate(preprocessed):
+        fig, ax = plt.subplots(1,2)
+        ax[0].imshow(originals[i])
+        euc_dists=get_colocs(im,num_clusts,min_dist=10)
+        ax[1].imshow(im)
+        for pair in euc_dists.keys():
+            coords= tuple(euc_dists[pair]["G"])
+            circle= plt.Circle(coords,5,color='g',fill=False)
+            ax[1].add_artist(circle)
+        
+        plt.show()
+
+plot_colocs(original[8:10],preprocessed[8:10],10)
