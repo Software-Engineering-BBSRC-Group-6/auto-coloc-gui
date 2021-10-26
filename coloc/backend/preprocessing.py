@@ -21,6 +21,20 @@ def generate_timestamp():
     timestamp = (datetime.now()).strftime('%Y%m%d-%H%M%S')
     return timestamp
 
+inputdict = {
+    'in_path': './data/in/test.tiff',
+    'out_path': './data/out/test.tiff',
+    'threshold': 0.3
+    }
+
+def generate_timestamp():
+    """Generates a timestamp, based on the current time.
+
+    :return timestamp: The current time, in format YYYYMMDD-hhmmss
+    """
+    timestamp = (datetime.now()).strftime('%Y%m%d-%H%M%S')
+    return timestamp
+
 def listfiles():
     """List of Files in the working directory
     
@@ -64,7 +78,7 @@ def resize_ims(im_array):
     return np.asarray(im_arr)
 
 
-def rescale(im_2D, threshold=False):
+def normalise(im_2D, threshold=False):
     """Minmax rescale a 2D image
 
     :param im_2D: input array
@@ -209,3 +223,30 @@ def plot_colocs(originals,preprocessed,num_clusts):
         plt.show()
 
 plot_colocs(original[8:10],preprocessed[8:10],40)
+
+
+# Unresolved change on the merge as a chunk of code was commented out
+#   :return: numpy array
+
+#   out = []
+#   s = 0
+#   for channel in [im_3d[:, :, i] for i in range(im_3d.shape[-1])]:
+#        out.append(normalise(channel, threshold))
+#        s += 1
+#    return np.dstack(out)
+
+# def preprocess(sourcefile, threshold, visualise=True):
+#    im_arr=resize_ims(split(sourcefile))
+#    scaled_ims = np.asarray(
+#        [rescale_stack(im, threshold=threshold) for im in im_arr])
+
+    # if visualise:
+    #     for s,i in enumerate(len(im_arr)):
+    #         plt.imshow(im_arr[i])
+    #         plt.title("Original image %s" % (str(s+1)))
+    #         plt.show()
+    #         plt.imshow(scaled_ims[i])
+    #         plt.title("Processed image %s" % (str(s+1)))
+    #         plt.show()
+
+    # return im_arr, scaled_ims
