@@ -1,4 +1,3 @@
 **/.DS_Store
 venv/**
 data/*.tif
-.github/workflows/unit-tests.yml

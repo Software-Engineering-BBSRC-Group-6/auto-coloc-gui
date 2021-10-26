@@ -27,10 +27,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Run PyTest
       run: |
-        python -m pytest tests/test_classes.py
-        python -m pytest tests/test_preprocessing.py
-        python -m pytest tests/test_preprocessing-class,py
-        python -m pytest tests/test_visualiser.py
+        python -m pytest coloc/tests/test-preproc.py
     - name: Check coverage
       run: |
         coverage run -m pytest
