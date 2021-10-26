@@ -36,9 +36,8 @@ def correlate(original,preprocessed,channels,num_clusts):
 
 import os
 
-
-
 def fit_clusters(im,num_clusters):
+
     mask= im >0
     im[mask]=1
     xrange,yrange=np.shape(im)
@@ -80,63 +79,109 @@ def get_colocs(im,channels,num_clusts,min_dist):
     print("Complete")
     return compare_dists(c1_clusters,c2_clusters,min_dist)
 
-# def plot_colocs(originals,preprocessed,num_clusts,min_dist=False):
-#     if not min_dist:
-#         min_dist=5
-#     for i,im in enumerate(preprocessed):
-#         fig, ax = plt.subplots(1,2)
-#         ax[0].imshow(originals[i])
-#         # ax[0].axis('off')
-#         euc_dists=get_colocs(im,[0,1],num_clusts,min_dist=min_dist)
-#         ax[1].imshow(im)
-#         for pair in euc_dists.keys():
-#             coords= tuple(euc_dists[pair]["Avg"])
-#             circle= plt.Circle(coords,5,color='g',fill=False)
-#             ax[1].add_artist(circle)
-#             # ax[1].axis('off')
-        
-#         plt.show()
-
-def plot_corr(image,clusters,title,output_dir,filename):
+def plot_corr(image,clusters,title,output_dir,filename,visualise=False):
     _, ax =plt.subplots(1,1)
     ax.imshow(image)
     annotate(ax,title,clusters)
-    plt.show()
-    plt.savefig(os.path.join(output_dir+filename))
 
-def plot_kmeans(image,clusters,title, output_dir,filename,min_dist=False):
+    plt.savefig(os.path.join(output_dir,filename))
+    if visualise:
+        plt.show()
+
+def plot_kmeans(image,clusters,title, output_dir,filename,min_dist=False,visualise=False):
     if not min_dist:
         min_dist=5
     _, ax =plt.subplots(1,1)
     ax.imshow(image)
-    annotate(ax,title)
     for pair in clusters.keys():
         coords= tuple(clusters[pair]["Avg"])
         circle= plt.Circle(coords,5,color='g',fill=False)
         ax.add_artist(circle)
-    plt.show()
-    plt.savefig(os.path.join(output_dir+filename))
-
-sourcefile="./data/input/colocsample1bRGB_BG.tif"
-output_dir = "./data/output"
-threshold = 0.5
+    ax.axis("off")
+    ax.set_title(title)
+    plt.savefig(os.path.join(output_dir,filename))
+    if visualise:
+        plt.show()
 
 from preprocessing import preprocess
 
-original, preprocessed = preprocess(sourcefile, threshold, visualise=False)
-n=9
-orig= original[n]
-denoised=preprocessed[n]
-num_clusts=15
-min_dist=7
-channels=[0,1]
+def run_visualiser(input_dict):
+    # Get parameters from user input
 
-corr_clusts,_=correlate(orig,denoised,channels,num_clusts)
-kmeans_clusts=get_colocs(denoised,channels,num_clusts,min_dist)
+    sourcefile,output_dir = [input_dict[key] for key in ["in_path","out_path"]]
+    if not input_dict['threshold']:
+        threshold = 0.5
+    else:
+        threshold=input_dict['threshold']
 
-# plot_corr(orig,corr_clusts,"Original",output_dir,"img%s_original_corr"%n)
-# plot_corr(denoised,corr_clusts,"Denoised",output_dir,"img%s_denoised_corr"%n)
-plot_kmeans(orig, kmeans_clusts, "Original", output_dir,"/img%s_original_kmeans"%n)
-plot_kmeans(denoised, kmeans_clusts, "Denoised", output_dir,"/img%s_denoised_kmeans"%n) # this is not working yet
+    if not input_dict['channels']:
+        channels=[0,1]
+    else:
+        channels=input_dict['channels']
+
+    if not input_dict['num_clusts']:
+        num_clusts = 10
+    else:
+        num_clusts=input_dict['num_clusts']
+
+    if not input_dict['min_dist']:
+        min_dist=15
+    else:
+        min_dist=input_dict['min_dist']
+
+    visualise = True # This is for development only
+    
+    print("Preprocessing")
+
+    original, preprocessed = preprocess(sourcefile, threshold, visualise=False)
+
+    if (input_dict["Run Intensity Correlation Analysis"] =='Y') and (input_dict["Run KMeans"] =='Y'):
+        for n,orig in enumerate(original):
+            orig= original[n]
+            denoised=preprocessed[n]
+
+            corr_clusts,_=correlate(orig,denoised,channels,num_clusts)
+            kmeans_clusts=get_colocs(denoised,channels,num_clusts,min_dist)
+
+            plot_corr(orig,corr_clusts,"Original - ICA",output_dir,"img%s_original_corr"%n,visualise)
+            plot_corr(denoised,corr_clusts,"Denoised - ICA",output_dir,"img%s_denoised_corr"%n,visualise)
+            plot_kmeans(orig, kmeans_clusts, "Original - KMeans", output_dir,"/img%s_original_kmeans"%n,visualise)
+            plot_kmeans(denoised, kmeans_clusts, "Denoised - KMeans", output_dir,"/img%s_denoised_kmeans"%n,visualise) 
+        
+    elif (input_dict["Run Intensity Correlation Analysis"] =='Y') and (input_dict["Run KMeans"] =='N'):
+        for n,orig in enumerate(original):
+            orig= original[n]
+            denoised=preprocessed[n]
+
+            corr_clusts,_=correlate(orig,denoised,channels,num_clusts)
+            plot_corr(orig,corr_clusts,"Original - ICA",output_dir,"img%s_original_corr"%n,visualise)
+            plot_corr(denoised,corr_clusts,"Denoised - ICA",output_dir,"img%s_denoised_corr"%n,visualise)
+
+    elif (input_dict["Run Intensity Correlation Analysis"] =='N') and (input_dict["Run KMeans"] =='Y'):
+        for n,orig in enumerate(original):
+            orig= original[n]
+            denoised=preprocessed[n]
+
+            kmeans_clusts=get_colocs(denoised,channels,num_clusts,min_dist)
+            plot_kmeans(orig, kmeans_clusts, "Original- KMeans", output_dir,"/img%s_original_kmeans"%n,visualise)
+            plot_kmeans(denoised, kmeans_clusts, "Denoised- KMeans", output_dir,"/img%s_denoised_kmeans"%n,visualise)
+    else:
+        raise KeyError("Please select a method for colocalisation analysis") 
+
+if __name__=="__main__":
+    inputdict = {
+    'in_path': './data/input/colocsample1bRGB_BG.tif',
+    'out_path': './data/output',
+    'threshold': 0.5,
+    'channels': [0,1],
+    'num_clusts': 5,
+    'min_dist': 10,
+    'visualise': True,
+    'Run Intensity Correlation Analysis': 'Y',
+    'Run KMeans': 'N'}
+
+    run_visualiser(inputdict)
 
 
+
+    
