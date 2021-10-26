@@ -3,8 +3,8 @@ import os
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QGridLayout, QLabel, QPushButton, QWidget
 
-#path to output files
-filesPath = "/home/amit/auto-coloc-gui/coloc/gui/images"
+#path to output files - change this with the filepath received from the input script
+filesPath = "/home/amit/auto-coloc-gui/data/output"
 
 
 class Widget(QWidget):
@@ -42,9 +42,10 @@ class Widget(QWidget):
         sets the index counter to 0
         '''
         for file in os.listdir(filesPath):
-            if file.endswith(".jpeg"):
+            if file.endswith(".png"):
                 self._filenames.append(os.path.join(filesPath, file))
-
+        self._filenames = sorted(self._filenames)
+        print (self._filenames)
         self.current_index = 0
 
     def handle_next(self):
