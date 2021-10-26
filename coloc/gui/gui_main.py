@@ -1,3 +1,4 @@
+
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -175,15 +176,33 @@ class MyTableWidget(QWidget):
         self.tab1.layout.removeWidget(self.loading)
         self.loading = None
 
+    def create_channels(self):
+        self.channel_list = []
+        for i in range(int(self.channels_value)):
+            self.channel_list.append(int(i))
+        
     def create_dict(self):
         '''
         This file creates a dictionary of the user inputs which can be fed to the model and visualiser functions.
         '''
         dict_data = {}
-        # dict_data["in_path"] = self.in_path
-        # dict_data["out_path"] = self.out_path
-        # dict_data["threshold"] = float(self.thresholdDropdown.currentText())
-        # dict_data["statistic"] = str(self.statsDropdown.currentText())
+        dict_data["in_path"] = self.in_path
+        dict_data["out_path"] = self.out_path
+        dict_data["threshold"] = float(self.thresholdDropdown.currentText())
+        self.create_channels()
+        dict_data["channels"] = self.channel_list
+        dict_data["num_clusts"] = int(self.clusterInput)
+        dict_data["min_dist"] = int(self.distInput)
+        dict_data["visualise"] = True
+        if self.kmeansCheckbox.isChecked():
+            dict_data["Run KMeans"] = "Y"
+        else:
+            dict_data["Run KMeans"] = "N"
+        if self.intensitycorrCheckbox.isChecked():
+            dict_data["Run Intensity Correlation Analysis"] = "Y"
+        else:
+            dict_data["Run Intensity Correlation Analysis"] = "N"
+
         self.dict_data = dict_data
 
     def check_errors(self):
@@ -191,9 +210,9 @@ class MyTableWidget(QWidget):
         This function ensures that the user inputs are all complete. It checks that an input .tif file has been selected. It
         also checks that necessary parameters have been selected for the model to run.
         '''
-        # Access threshold and chennels inputs
-        threshold_value = str(self.thresholdDropdown.currentText())
-        channels_value = str(self.channelsDropdown.currentText())
+        # Access threshold and channels inputs
+        self.threshold_value = str(self.thresholdDropdown.currentText())
+        self.channels_value = str(self.channelsDropdown.currentText())
 
         # Create Error message widgets
         inputMsg = QMessageBox()
@@ -219,7 +238,7 @@ class MyTableWidget(QWidget):
         if self.in_path is 'Empty' or os.path.splitext(self.in_path)[1] not in ['.tif']:
             inputMsg.exec_()
             return False
-        elif threshold_value in ['--Threshold Value--'] or channels_value in ['--Channel Number--'] or len(self.minDistLabel.text()) == 0 or len(self.minDistLabel.text()) == 0:
+        elif self.threshold_value in ['--Threshold Value--'] or self.channels_value in ['--Channel Number--'] or len(self.minDistLabel.text()) == 0 or len(self.minDistLabel.text()) == 0:
             parameterMsg.exec_()
             return False
         elif self.kmeansCheckbox.isChecked() == False and self.intensitycorrCheckbox.isChecked() == False:
@@ -260,10 +279,7 @@ class MyTableWidget(QWidget):
             amitFunction(self.out_path)
             """
 
-
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     ex = App()
     sys.exit(app.exec_())
-
-    
