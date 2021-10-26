@@ -5,6 +5,7 @@ from PIL import Image
 import random
 import numpy as np
 import matplotlib.pyplot as plt
+from pytest_mock import MockerFixture as mocker
 
 filepath = './coloc/tests/test-data/'
 correctname = 'colocsample1bRGB_BG.tif'
