@@ -215,13 +215,13 @@ def run_visualiser(input_dict):
     print("Preprocessing")
 
     original, preprocessed = do_preprocess(sourcefile, input_dict['threshold'], visualise=visualise)
-    original = original.frames
+    original = original.frames.astype(int)
     preprocessed = preprocessed.frames
 
     if (input_dict["Run Intensity Correlation Analysis"] == 'Y') and (input_dict["Run KMeans"] == 'Y'):
-        for n, orig in enumerate(original):
-            orig = original[n]
-            denoised = preprocessed[n]
+        for n in range(original.shape[-1]):
+            orig = original[:, :, :, n]
+            denoised = preprocessed[:, :, :, n]
 
             corr_clusts, _ = correlate(orig, denoised,
                                        input_dict['channels'],
@@ -244,20 +244,20 @@ def run_visualiser(input_dict):
                         output_dir, "/img%s_denoised_kmeans" % n, visualise)
         
     elif (input_dict["Run Intensity Correlation Analysis"] == 'Y') and (input_dict["Run KMeans"] == 'N'):
-        for n, orig in enumerate(original):
-            orig = original[n]
-            denoised = preprocessed[n]
+        for n in range(original.shape[-1]):
+            orig = original[:, :, :, n]
+            denoised = preprocessed[:, :, :, n]
 
-            corr_clusts, _ = correlate(orig, denoised, channels, num_clusts)
+            corr_clusts, _ = correlate(orig, denoised, input_dict['channels'], input_dict['num_clusts'])
             plot_corr(orig, corr_clusts, "Original - ICA", output_dir, "img%s_original_corr" % n, visualise)
             plot_corr(denoised, corr_clusts, "Denoised - ICA", output_dir, "img%s_denoised_corr" % n, visualise)
 
     elif (input_dict["Run Intensity Correlation Analysis"] == 'N') and (input_dict["Run KMeans"] == 'Y'):
-        for n, orig in enumerate(original):
-            orig = original[n]
-            denoised = preprocessed[n]
+        for n in range(original.shape[-1]):
+            orig = original[:, :, :, n]
+            denoised = preprocessed[:, :, :, n]
 
-            kmeans_clusts = get_colocs(denoised, channels, num_clusts, min_dist)
+            kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'])
             plot_kmeans(orig, kmeans_clusts, "Original- KMeans", output_dir, "/img%s_original_kmeans" % n, visualise)
             plot_kmeans(denoised, kmeans_clusts, "Denoised- KMeans", output_dir, "/img%s_denoised_kmeans" % n, visualise)
     else:
