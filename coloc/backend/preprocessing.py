@@ -5,7 +5,7 @@ import os
 from sklearn.cluster import KMeans
 from datetime import datetime
 import cv2
-from math import dist
+
 
 inputdict = {
     'in_path': './data/in/test.tiff',
@@ -92,13 +92,13 @@ def preprocess(sourcefile, threshold, visualise=True):
     scaled_ims = np.asarray(
         [rescale_stack(im, threshold=threshold) for im in im_arr])
 
-    if visualise:
-        for s,i in enumerate(len(im_arr)):
-            plt.imshow(im_arr[i])
-            plt.title("Original image %s" % (str(s+1)))
-            plt.show()
-            plt.imshow(scaled_ims[i])
-            plt.title("Processed image %s" % (str(s+1)))
-            plt.show()
+    # if visualise:
+    #     for s,i in enumerate(len(im_arr)):
+    #         plt.imshow(im_arr[i])
+    #         plt.title("Original image %s" % (str(s+1)))
+    #         plt.show()
+    #         plt.imshow(scaled_ims[i])
+    #         plt.title("Processed image %s" % (str(s+1)))
+    #         plt.show()
 
     return im_arr, scaled_ims
