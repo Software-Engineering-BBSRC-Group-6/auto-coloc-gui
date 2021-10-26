@@ -1,10 +1,8 @@
 import pytest
 from ..backend.classes import pipeline_object
 import os
-from PIL import Image
 import random
 import numpy as np
-import matplotlib.pyplot as plt
 
 filepath = './coloc/tests/test-data/'
 correctname = 'colocsample1bRGB_BG.tif'
@@ -104,4 +102,4 @@ def test_pipeline_visualise(mocker):
     for patched in patches:
         patched.assert_called()
 
-    
+ 
