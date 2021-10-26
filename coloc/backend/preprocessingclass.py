@@ -1,5 +1,5 @@
 # File to test the new pipeline.
-from classes import pipeline_object
+from ..backend.classes import pipeline_object
 
 
 def do_preprocess(sourcefile, outpath, threshold=False, visualise=False):
