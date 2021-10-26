@@ -2,8 +2,9 @@
 from classes import pipeline_object
 
 testimg = pipeline_object('./data/input/colocsample1bRGB_BG.tif', 
-                          'test.tif', threshold=0.3)
+                          'test.tif', threshold=0.05)
 testimg.split()
-testimg.rescale_all()
+testimg.reshape()
+testimg.normalise_all()
 testimg.visualise()
 
