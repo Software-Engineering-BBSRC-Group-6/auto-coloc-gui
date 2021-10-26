@@ -1,12 +1,4 @@
 **/.DS_Store
-<<<<<<< HEAD
-<<<<<<< HEAD
 venv/**
 data/*.tif
-=======
 .github/workflows/unit-tests.yml
->>>>>>> 893f1f57cdee32de8868b70fbc4fae8d80cdfce5
-=======
-venv/**
-data/*.tif
->>>>>>> bd556eb7c204c8009ef85e04d547c50ac6e0cb8d
