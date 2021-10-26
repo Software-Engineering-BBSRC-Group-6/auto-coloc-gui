@@ -1,3 +1,6 @@
+[![Python Version Compatability and Flake-8](https://github.com/Software-Engineering-BBSRC-Group-6/auto-coloc-gui/actions/workflows/python-version.yml/badge.svg)](https://github.com/Software-Engineering-BBSRC-Group-6/auto-coloc-gui/actions/workflows/python-version.yml)
+[![Check Systems Compatability](https://github.com/Software-Engineering-BBSRC-Group-6/auto-coloc-gui/actions/workflows/system-compatability.yml/badge.svg)](https://github.com/Software-Engineering-BBSRC-Group-6/auto-coloc-gui/actions/workflows/system-compatability.yml)
+
 # auto-coloc-gui
 
 An image processing tool to automoate the analysis of multichannel flourescence images to quantify colocalisation. The tool accepts .TIFF formatted images with two or more colour channels and uses a statistical model to indicate regions of interest (ROIs) where flourophores colocalise. The tool comes with a user friendly interface which allows users to customise thresholds and distances across which colocolisation could be calculated.
