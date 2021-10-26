@@ -94,13 +94,14 @@ def test_pipeline_normalise(test):
 
 def test_pipeline_visualise(mocker):
     """Tests that the correct number of plots are produced."""
-    calls = [0, 0, 0, 0]
-    
-    mocker.patch('matplotlib.pyplot.show', return_value=True)
-    mocker.patch('matplotlib.pyplot.imshow', return_value=True)
-    mocker.patch('matplotlib.pyplot.colorbar', return_value=True)
-    mocker.patch('matplotlib.pyplot.title', return_value=True)
+    patches =[mocker.patch('matplotlib.pyplot.show', return_value=True),
+              mocker.patch('matplotlib.pyplot.imshow', return_value=True),
+              mocker.patch('matplotlib.pyplot.colorbar', return_value=True),
+              mocker.patch('matplotlib.pyplot.title', return_value=True)]
     test_obj = pipeline_object(correctpath, filepath)
     test_obj.split()
     test_obj.visualise()
+    for patched in patches:
+        patched.assert_called()
+
     

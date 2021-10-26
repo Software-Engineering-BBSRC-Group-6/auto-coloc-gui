@@ -94,11 +94,11 @@ class pipeline_object():
             im.seek(i)
             plt.imshow(np.asarray(im))
             plt.title("Original image {0}".format(str(i+1)))
-            plt.colorbar
+            plt.colorbar()
             plt.show()
             plt.imshow(self.frames[:, :, :, i])
             plt.title("Processed image {0}".format(str(i+1)))
-            plt.colorbar
+            plt.colorbar()
             plt.show()
         
 
