@@ -7,8 +7,16 @@ import cv2
 
 
 class pipeline_object():
-    """Pipeline object class. Any image becomes an instance of this class.
+    """Pipeline object class. Any input .tiff image becomes an instance of this class.
     The class operates using its methods to move an image through the pipeline.
+    
+
+    :param inpath: File path of image in directory
+    :type inpath: string or os.path
+    :param outpath: 
+    :type outpath:
+    :param threshold: threshold, defaults to False
+    :type threshold: bool, optional
     """
     def __init__(self, inpath, outpath, threshold=False):
         # Some error handling to make sure the image file exists.
@@ -30,6 +38,9 @@ class pipeline_object():
     def reshape(self):
         """Reshapes an image such that the dimensions are square, using the dimension
         of the smallest side.
+
+        :return: resized image
+        :rtype: class object, image array
         """
         
         # Find smallest dimension n and set image size to square n x n.
@@ -45,6 +56,9 @@ class pipeline_object():
 
     def split(self):
         """Split input .tiff file into separate RGB slices
+        
+        :return:
+        :rtype:
         """
         self.num_frames = self.image_obj.n_frames
         self.frames = np.empty((self.image_obj.size[1], self.image_obj.size[0], 3, self.num_frames))
@@ -55,11 +69,19 @@ class pipeline_object():
         return
 
     def normalise(self, j):
-        """Minmax rescale a 2D image at index j), where
-        j is the channel index.
+        """Minmax rescale a 2D image at indices (i, j), where
+        j is the channel index and i the frame index.
 
         :param j: index of channel
-        :type j: integer"""
+        :type j: integer
+        :param i: index of frame
+        :type i: integer
+
+        :raises ValueError: Cannot process images that have less or more than 2 dimensions
+
+        :return: boolean value indicating if the image was rescaled
+        :rtype: bool
+        """
         im_3D = self.frames[:, :, j, :]
 
         if len(np.shape(im_3D)) != 3:
@@ -80,7 +102,11 @@ class pipeline_object():
         """Rescale RGB image using minmax rescaling
 
         :param im_3d: input RGB image
-        :type im_3d: numpy array"""
+        :type im_3d: numpy array
+        
+        :return:
+        :rtype: bool
+        """
 
         for j in range(self.frames.shape[2]):
             self.normalise(j)
@@ -88,7 +114,8 @@ class pipeline_object():
         return True
 
     def visualise(self):
-        """Visualise the stack of RGB images."""
+        """Visualise the stack of RGB images
+        """
         im = Image.open(self.filepath)
         for i in range(self.frames.shape[-1]):
             im.seek(i)
