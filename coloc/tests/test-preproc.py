@@ -91,8 +91,7 @@ def test_pipeline_normalise(test):
 
 """
 def test_pipeline_visualise(mocker):
-    """#Tests that the correct number of plots are produced.
-    """patches =[mocker.patch('matplotlib.pyplot.show', return_value=True),
+    patches =[mocker.patch('matplotlib.pyplot.show', return_value=True),
               mocker.patch('matplotlib.pyplot.imshow', return_value=True),
               mocker.patch('matplotlib.pyplot.colorbar', return_value=True),
               mocker.patch('matplotlib.pyplot.title', return_value=True)]
