@@ -92,9 +92,9 @@ def test_pipeline_normalise(test):
                                  test_obj.frames[:, :, rnd_channel, :])
 
 
-#def test_pipeline_visualise(mocker):
+# def test_pipeline_visualise(mocker):
 #    """Tests that the correct number of plots are produced."""
-#   calls = [0, 0, 0, 0]
+#    calls = [0, 0, 0, 0]
 #   
 #    mocker.patch('matplotlib.pyplot.show', return_value=True)
 #    mocker.patch('matplotlib.pyplot.imshow', return_value=True)
