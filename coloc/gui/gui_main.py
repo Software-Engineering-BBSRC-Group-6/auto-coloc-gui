@@ -6,163 +6,31 @@ from PyQt5.QtCore import pyqtSlot
 import os
 import time
 
-# Initialise main window of the GUI
 class App(QMainWindow):
-        """
-        A class to create the main simulation window.
-        ...
-
-        Attributes
-        ----------
-
-        left: int
-            x-coordinate of the created window on screen
-        top: int
-            y-coordinate of the created window on screen
-        width: int
-            Width of the created window
-        height: int
-            Height of the created window
-
-        """
 
     def __init__(self):
-        """
-        Construct all necessary attributes for the GUI Window.       
-        """
         super().__init__()
         self.title = 'ACG Tools'
-        # Create window dimension properties
         self.left = 0
         self.top = 0
         self.width = 600
         self.height = 300
-        # Create window title property
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+        
         self.table_widget = MyTableWidget(self)
         self.setCentralWidget(self.table_widget)
-        # Display window
+        
         self.show()
     
 class MyTableWidget(QWidget):
-        """
-        A class to create widgets of the GUI.
-        ...
-
-        Attributes
-        ----------
-        layout
-        
-        tabs
-        
-        tab1
-        
-        tab2
-        
-        logo
-        
-        introLabel1
-        
-        introLabel2
-        
-        introLabel3
-        
-        openFile1
-        
-        openFile1Label
-        
-        fileLabel1
-        
-        fileLabel1
-        
-        thresholdDropdown
-        
-        thresholdLabel
-        
-        thresholdDropdown
-
-        channelsDropdown
-        
-        channelsDropdownLabel
-        
-        channelsDropdown
-        
-        inputClusterNo
-        
-        inputClusterNoLabel
-        
-        clusterNoLabel
-        
-        inputMinDist
-        
-        inputMinDistLabel
-        
-        minDistLabel
-        
-        minDistLabel
-        
-        intensitycorrCheckbox
-        
-        intensitycorrLabel
-        
-        kmeansCheckbox
-        
-        kmeansLabel
-        
-        runButton
-        
-        cancelButton
-        
-        in_path
-        
-        out_path
-        
-        clusterInput
-        
-        distInput
-        
-        loading
-        
-        gif
-        
-        dict_data
-
-        Methods
-        -------
-        on_click
-        
-        define_file_path
-        
-        define_cluster_number
-        
-        define_min_distance
-        
-        start_animation
-        
-        stop_animation
-        
-        create_channels
-        
-        create_dict
-        
-        check_errors
-        
-        cancel_clicked
-        
-        run_program
-
-        """
     
     def __init__(self, parent):
-        """
-        Construct all necessary widgets for the ACG GUI and convert user inputs into object properties.
-
-        :param parent: name of main window of the GUI
-        :type parent: string
-        """
         super(QWidget, self).__init__(parent)
         self.layout = QVBoxLayout(self)
+        self._current_index = 0
+        self._filenames = []
+        self.filesPath = "/home/samuel/Desktop"
         
         # Initialize tab screen
         self.tabs = QTabWidget()
@@ -174,7 +42,9 @@ class MyTableWidget(QWidget):
         self.tabs.addTab(self.tab1,"Setup")
         self.tabs.addTab(self.tab2,"View")
         
-        # Create first tab
+        # TAB 1
+
+        # Create Tab 1 - Setup
         self.tab1.layout = QGridLayout(self)
 
         # Define logo label
@@ -190,7 +60,7 @@ class MyTableWidget(QWidget):
         self.introLabel3 = QLabel('\nDefine colocalisation parameters including clustering threshold and statistical analysis type:')
         self.introLabel3.setFont(QFont('Ariel',italic=True))
 
-        # Create widgets for the setup tab including: labels, buttons, dropdowns, checkboxes, int input windows.
+        # Create widgets for the setup tab inlcuding: labels, buttons, dropdowns, checkboxes, int input windows.
         self.openFile1 = QPushButton("Open File")
         self.openFile1Label = QLabel('Select Input Images (.tif):')
         self.fileLabel1 = QLabel()
@@ -201,14 +71,13 @@ class MyTableWidget(QWidget):
         self.channelsDropdown = QComboBox()
         self.channelsDropdownLabel = QLabel('Select Number of Channels:')
         self.channelsDropdown.addItems(["--Channel Number--", "1 ", "2", "3"])
-        self.inputClusterNo = QPushButton("Input Value")
+        self.scaleDropdown = QComboBox()
+        self.scaleDropdownLabel = QLabel("Select rough scale of image (in 'mu: \u03BC'):")
+        self.scaleDropdown.addItems(["--Image Scale--", "1 ", "10", "50", "100", "500"])
+        self.inputClusterNo = QPushButton("Select Value")
         self.inputClusterNoLabel = QLabel('Input Cluster Number:')
         self.clusterNoLabel = QLabel()
         self.clusterNoLabel.setMaximumWidth(300)
-        self.inputMinDist = QPushButton("Input Value") # Could be replaced by a scale metric...
-        self.inputMinDistLabel = QLabel('Input Minimum Distance:')
-        self.minDistLabel = QLabel()
-        self.minDistLabel.setMaximumWidth(300)
         self.intensitycorrCheckbox = QCheckBox()
         self.intensitycorrLabel = QLabel('Run Intensity Correlation Analysis:')
         self.kmeansCheckbox = QCheckBox()
@@ -228,12 +97,11 @@ class MyTableWidget(QWidget):
         self.tab1.layout.addWidget(self.thresholdLabel, 6, 2)
         self.tab1.layout.addWidget(self.channelsDropdown, 7, 3)
         self.tab1.layout.addWidget(self.channelsDropdownLabel, 7, 2)
-        self.tab1.layout.addWidget(self.inputClusterNo, 8, 3)
-        self.tab1.layout.addWidget(self.inputClusterNoLabel, 8, 2)
-        self.tab1.layout.addWidget(self.clusterNoLabel, 8, 4, 1, 4)
-        self.tab1.layout.addWidget(self.inputMinDist, 9, 3)
-        self.tab1.layout.addWidget(self.inputMinDistLabel, 9, 2)
-        self.tab1.layout.addWidget(self.minDistLabel, 9, 4, 1, 4)
+        self.tab1.layout.addWidget(self.scaleDropdown, 8, 3)
+        self.tab1.layout.addWidget(self.scaleDropdownLabel, 8, 2)
+        self.tab1.layout.addWidget(self.inputClusterNo, 9, 3)
+        self.tab1.layout.addWidget(self.inputClusterNoLabel, 9, 2)
+        self.tab1.layout.addWidget(self.clusterNoLabel, 9, 4, 1, 4)
         self.tab1.layout.addWidget(self.intensitycorrCheckbox, 10, 3)
         self.tab1.layout.addWidget(self.intensitycorrLabel, 10, 2)
         self.tab1.layout.addWidget(self.kmeansCheckbox, 11, 3)
@@ -242,11 +110,10 @@ class MyTableWidget(QWidget):
         self.tab1.layout.addWidget(self.cancelButton, 12, 5)
         self.tab1.setLayout(self.tab1.layout)
 
-        # Disable / 'Grey-out' widgets
+        # Disable/'grey-out' widgets
         self.cancelButton.setDisabled(True)
         self.fileLabel1.setDisabled(True)
         self.clusterNoLabel.setDisabled(True)
-        self.minDistLabel.setDisabled(True)
             
         # Define path as empty for later use
         self.in_path = 'Empty'
@@ -254,8 +121,31 @@ class MyTableWidget(QWidget):
         # Connect GUI buttons to respective functions
         self.openFile1.clicked.connect(self.define_file_path)
         self.inputClusterNo.clicked.connect(self.define_cluster_number)
-        self.inputMinDist.clicked.connect(self.define_min_distance)
         self.runButton.clicked.connect(self.run_program)
+
+        #TAB 2
+
+        #Create Tab 2 - View
+        self.tab2.layout = QGridLayout(self)
+
+        #Creates objects to be displayed
+        self.previous_button = QPushButton("Previous")
+        self.next_button = QPushButton("Next")
+        self.label = QLabel()
+
+        # Add widgets and define positioning on QGridLayout
+        self.tab2.layout.addWidget(self.previous_button, 0, 0)
+        self.tab2.layout.addWidget(self.next_button, 0, 3)
+        self.tab2.layout.addWidget(self.label, 1, 1, 1, 2)
+        self.tab2.setLayout(self.tab2.layout)
+
+        #handles button click events
+        self.previous_button.clicked.connect(self.handle_previous)
+        self.next_button.clicked.connect(self.handle_next)
+        self._update_button_status(False, True)
+
+        #Loads data in from the filepath
+        self.load_files() #Make this into the outpath after testing
 
         # Add tabs to widget
         self.layout.addWidget(self.tabs)
@@ -263,13 +153,12 @@ class MyTableWidget(QWidget):
         
     @pyqtSlot()
     def on_click(self):
-        '''
-        This function prints the coordinates and name of a widget. 
-        '''
         print("\n")
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
             print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
     
+    # TAB 1 - INPUT FUNCTIONS
+
     def define_file_path(self):
         '''
         This function uses the file path that the user selects as input to define in_path and out_path variables
@@ -281,17 +170,10 @@ class MyTableWidget(QWidget):
     
     def define_cluster_number(self):
         '''
-        This function labels the GUI with the user's cluster number input to confirm data entry.
+        This cluster labels the GUI with the user's cluster number input to confirm data entry.
         '''
-        self.clusterInput, bool_info = QInputDialog.getInt(self, 'Integer Input Dialog', 'Enter cluster number:')
+        self.clusterInput, bool_info = QInputDialog.getInt(self, 'Integer Input Dialog', 'Enter cluster number:', 1, 10, 50, 10)
         self.clusterNoLabel.setText(str(self.clusterInput))
-
-    def define_min_distance(self):
-        '''
-        This function labels the GUI with the user's minimum distance input to confirm data entry.
-        '''
-        self.distInput, bool_info = QInputDialog.getInt(self, 'Integer Input Dialog', 'Enter minimum distance:')
-        self.minDistLabel.setText(str(self.distInput))
 
     def start_animation(self):
         '''
@@ -333,7 +215,7 @@ class MyTableWidget(QWidget):
         self.create_channels()
         dict_data["channels"] = self.channel_list
         dict_data["num_clusts"] = int(self.clusterInput)
-        dict_data["min_dist"] = int(self.distInput)
+        dict_data["min_dist"] = 10/float(self.scaleDropdown.currentText()) #This converts scale in microns to pixel distance between clusters
         dict_data["visualise"] = True
         if self.kmeansCheckbox.isChecked():
             dict_data["Run KMeans"] = "Y"
@@ -351,9 +233,10 @@ class MyTableWidget(QWidget):
         This function ensures that the user inputs are all complete. It checks that an input .tif file has been selected. It
         also checks that necessary parameters have been selected for the model to run.
         '''
-        # Access threshold and channels inputs
+        # Access threshold and chennels inputs
         self.threshold_value = str(self.thresholdDropdown.currentText())
         self.channels_value = str(self.channelsDropdown.currentText())
+        self.scale_value = str(self.scaleDropdown.currentText())
 
         # Create Error message widgets
         inputMsg = QMessageBox()
@@ -376,10 +259,10 @@ class MyTableWidget(QWidget):
         analysisMsg.setWindowTitle("Input Error")
 
         # Set conditions for error messages to be delivered. Set booleans for check_error function to read. 
-        if self.in_path == 'Empty' or os.path.splitext(self.in_path)[1] not in ['.tif']:
+        if self.in_path is 'Empty' or os.path.splitext(self.in_path)[1] not in ['.tif']:
             inputMsg.exec_()
             return False
-        elif self.threshold_value in ['--Threshold Value--'] or self.channels_value in ['--Channel Number--'] or len(self.minDistLabel.text()) == 0 or len(self.minDistLabel.text()) == 0:
+        elif self.threshold_value in ['--Threshold Value--'] or self.channels_value in ['--Channel Number--'] or self.scale_value in ['--Image Scale--'] or len(self.clusterNoLabel.text()) == 0:
             parameterMsg.exec_()
             return False
         elif self.kmeansCheckbox.isChecked() == False and self.intensitycorrCheckbox.isChecked() == False:
@@ -419,6 +302,67 @@ class MyTableWidget(QWidget):
             danFunction(self.dict_data)
             amitFunction(self.out_path)
             """
+
+    # TAB 2 - VISUALISER FUNCTIONS
+
+    def load_files(self):
+        '''
+        Loads the files in from filesPath and
+        sets the index counter to 0
+        '''
+        for file in os.listdir(self.filesPath):
+            if file.endswith(".png"):
+                self._filenames.append(os.path.join(self.filesPath, file))
+        self._filenames = sorted(self._filenames)
+        print (self._filenames)
+        self.current_index = 0
+
+    def handle_next(self):
+        '''
+        Adds one to the index counter
+        (moves forward in directory)
+        '''
+        self.current_index += 1
+
+    def handle_previous(self):
+        '''
+        Subtracts one from the index
+        (moves backward in directory)
+        '''
+        self.current_index -= 1
+
+    @property
+    def current_index(self):
+        '''
+        Determines what the current index is
+        '''
+        return self._current_index
+
+    @current_index.setter
+    def current_index(self, index):
+        '''
+        Allows for movement between the 
+        files and greying out of buttons
+        '''
+        if index <= 0:
+            self._update_button_status(False, True)
+        elif index >= (len(self._filenames) - 1):
+            self._update_button_status(True, False)
+        else:
+            self._update_button_status(True, True)
+
+        if 0 <= index < len(self._filenames):
+            self._current_index = index
+            filename = self._filenames[self._current_index]
+            pixmap = QPixmap(filename)
+            self.label.setPixmap(pixmap)
+
+    def _update_button_status(self, previous_enable, next_enable):
+        '''
+        Updates the button state
+        '''
+        self.previous_button.setEnabled(previous_enable)
+        self.next_button.setEnabled(next_enable)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
