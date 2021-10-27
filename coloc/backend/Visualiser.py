@@ -4,10 +4,6 @@ import numpy as np
 from math import dist
 import preprocessingclass
 
-
-
-
-
 def correlate(preprocessed, channels, num_clusts):
     """Returns the centres of clusters based on their PMCC.
 
@@ -63,7 +59,7 @@ def fit_clusters(im, num_clusters):
                 out.append([x, y]) 
 
     kmeans = KMeans(n_clusters=num_clusters, n_init=10, init='k-means++').fit(out)
-    return [(int(i[1]),int(i[0])) for i in kmeans.cluster_centers_]
+    return kmeans.cluster_centers_.astype(int)
 
 
 def compare_dists(ch1_clusters, ch2_clusters, max_dist):
@@ -77,14 +73,25 @@ def compare_dists(ch1_clusters, ch2_clusters, max_dist):
     :return euc_dists: Euclidean distances between the cluster centres
     """
     n = 0
-    euc_dists = []
-    for c1_clust in ch1_clusters:      
-        for c2_clust in ch2_clusters:
+    euc_dists = {}
+    if len(ch1_clusters) != len (ch2_clusters):
+        raise ValueError("Unequal cluster vectors")
+    print("Ch1 cluster: ",ch1_clusters)
+    print("Ch2 cluster: ",ch2_clusters)
+    for n, c1_clust in enumerate(ch1_clusters):      
+        for n2,c2_clust in enumerate(ch2_clusters):
             centroid_dist = dist(c1_clust, c2_clust)  # Compute euclidean distance
             if centroid_dist < max_dist:          # Check vs. threshold distance criterion
+                euc_dists["Pair %s" % (n)] = {}
                 # Record distance between cluster centroids. 
-                euc_dists.append(tuple(np.mean([c1_clust, c2_clust], axis=0).astype(int)))
-                n += 1
+                euc_dists["Pair %s"%(n)]["Chan1"]=c1_clust.astype(int)
+                euc_dists["Pair %s"%(n)]["Chan2"]=c2_clust.astype(int)
+                print("Ch 1 n",str(n))
+                print("Ch2 n", str(n2))
+                print("Ch1 :",c1_clust)
+                print("Ch2 :",c2_clust)
+                print("Means: ",np.mean([c1_clust,c2_clust],axis=0))
+                euc_dists["Pair %s"%(n)]["Avg"]=reversed(np.mean([c1_clust,c2_clust],axis=0).astype(int))
     return euc_dists
 
 
@@ -148,32 +155,33 @@ def plot(original,denoised, clusters, output_dir, filename):
     :param filename: Name to output file as
     :type filename: string
     """
-    # plt.imshow(denoised)
-    # plt.show()
-    # plt.clf()
     _, ax = plt.subplots(1, 2)
     ax[0].imshow(original)
     ax[1].imshow(denoised)
     titles= ['Original','Denoised']
     for a, axis in enumerate(ax):
         annotate(axis, titles[a], clusters)
-    plt.show()
-    plt.clf()
+    plt.savefig(output_dir+filename)
+    # plt.show()        # Retained for debugging
 
 def plot_kmeans(original, denoised, clusters, output_dir, filename):
     """Plots circles corresponding to overlapping kmeans centroids in the data
     
     """
     _, ax = plt.subplots(1, 2)
-    ax[0].imshow(original)
-    ax[1].imshow(denoised)
+    ax[0].imshow(denoised)
+    ax[1].imshow(original)
     titles=['Original','Denoised']
     for a,axis in enumerate(ax):
-        for pair in clusters:
-            circle = plt.Circle(pair, 5, color='pink', fill=False)
+        for pair in clusters.keys():
+            print(clusters[pair])
+            coords = tuple(clusters[pair]["Avg"])
+            print(coords)
+            circle = plt.Circle(coords, 5, color='white', fill=False)
             axis.add_artist(circle)
-        axis.axis("off")
         axis.set_title(titles[a])
+        axis.axis("off")
+
     plt.savefig(output_dir+ filename)
     plt.show()
 
@@ -199,22 +207,17 @@ def run_visualiser(input_dict):
     preprocessed = preprocessed.frames
 
     if (input_dict["Run Intensity Correlation Analysis"] == 'Y') and (input_dict["Run KMeans"] == 'Y'):
-        # for n in range(original.shape[-1]):
-        for n in [8,9]:
+        for n in range(original.shape[-1]):
+        # for n in [8,9]:   # For debugging only
             orig = original[:, :, :, n]
             denoised = preprocessed[:, :, :, n]
-            print("Original shape", np.shape(orig))
-            print("Denoised shape",np.shape(denoised))
-            
+
+            corr_clusts = correlate(denoised, input_dict['channels'], input_dict['num_clusts'])
+            plot(orig, denoised, corr_clusts, output_dir, "/img%s_original_corr" % n)
+                   
             kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'])
-            print("\nKmeans clusts",kmeans_clusts,type(kmeans_clusts))
-            plot_kmeans(orig, preprocessed[:, :, :, n], kmeans_clusts, output_dir,"/img%s_original_kmeans" % n)
-
-            # corr_clusts = correlate(denoised, input_dict['channels'], input_dict['num_clusts'])
-            # print("Corr clusts",corr_clusts,type(corr_clusts))
-            # plot(orig, denoised, corr_clusts, output_dir, "/img%s_original_corr" % n)
-
-
+            # There is an error here - passing kmeans_clusts is affecting plotting of the denoised image (im)
+            plot_kmeans(orig, denoised, kmeans_clusts, output_dir,"/img%s_original_kmeans" % n)
         
     elif (input_dict["Run Intensity Correlation Analysis"] == 'Y') and (input_dict["Run KMeans"] == 'N'):
         for n in range(original.shape[-1]):
@@ -230,7 +233,6 @@ def run_visualiser(input_dict):
             orig = original[:, :, :, n]
             denoised = preprocessed[:, :, :, n]
 
-
             kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'])
             plot(orig, denoised, kmeans_clusts, output_dir, "/img%s_original_kmeans" % n)
     else:
@@ -242,14 +244,13 @@ if __name__=="__main__":
     'out_path': './data/output',
     'threshold': 0.5,
     'channels': [0,1],
-    'num_clusts': 20,
-    'min_dist': 5,
+    'num_clusts': 10,
+    'min_dist': 1000,
     'Run Intensity Correlation Analysis': 'Y',
-    'Run KMeans': 'Y'}
+    'Run KMeans': 'N'}
     
-
     run_visualiser(inputdict)
-
+    
 
 
     
