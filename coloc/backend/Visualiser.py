@@ -37,7 +37,7 @@ def correlate(preprocessed, channels, num_clusts):
     return clusts
 
 
-def fit_clusters(im, num_clusters):
+def fit_clusters(im, num_clusters,threshold):
     """Fits a series of k-means clusters using Scikit-Learn.
 
     :param im: image data
@@ -49,17 +49,18 @@ def fit_clusters(im, num_clusters):
     :type clusts: list of tuples? # NB check this
     """
 
-    mask = im > 0
-    im[mask] = 1        # Set nonzero values to 1
+    # mask = im < (threshold * np.max(im))
+    # im[mask] = 0        
+    # im[~mask] = 0
     xrange, yrange = np.shape(im)
     out = []
     for x in range(xrange):
         for y in range(yrange):
-            if im[x, y] == 1:
                 out.append([x, y]) 
-
+                # out.append(im)
     kmeans = KMeans(n_clusters=num_clusters, n_init=10, init='k-means++').fit(out)
-    return kmeans.cluster_centers_.astype(int)
+    print("Clusters: ",np.asarray(kmeans.cluster_centers_).astype('int'))
+    return np.asarray(kmeans.cluster_centers_).astype('int')
 
 
 def compare_dists(ch1_clusters, ch2_clusters, max_dist):
@@ -90,12 +91,12 @@ def compare_dists(ch1_clusters, ch2_clusters, max_dist):
                 # print("Ch2 n", str(n2))
                 # print("Ch1 :",c1_clust)
                 # print("Ch2 :",c2_clust)
-                print("Means: ",list(reversed(np.mean([c1_clust,c2_clust],axis=0))))
+                # print("Means: ",list(reversed(np.mean([c1_clust,c2_clust],axis=0))))
                 euc_dists["Pair %s"%(n)]["Avg"]=list(reversed(np.mean([c1_clust,c2_clust],axis=0).astype(int)))
     return euc_dists
 
 
-def get_colocs(im, channels, num_clusts, max_dist):
+def get_colocs(im, channels, num_clusts, max_dist,threshold):
     """Compare two chanels of an image and return the set of KMeans cluster centroids.
     Centroids fall within a minimum distance of one another.
 
@@ -116,8 +117,8 @@ def get_colocs(im, channels, num_clusts, max_dist):
     if chan1.shape != chan2.shape:
         raise ValueError("Input arrays must have the same shape")
     
-    c1_clusters = fit_clusters(chan1, num_clusts)
-    c2_clusters = fit_clusters(chan2, num_clusts)
+    c1_clusters = fit_clusters(chan1, num_clusts,threshold)
+    c2_clusters = fit_clusters(chan2, num_clusts,threshold)
 
     return compare_dists(c1_clusters, c2_clusters, max_dist)
 
@@ -205,7 +206,7 @@ def run_visualiser(input_dict):
 
     original, preprocessed = preprocessingclass.do_preprocess(sourcefile, input_dict['threshold'])
     original = original.frames.astype(int)
-    preprocessed = (preprocessed.frames*255).astype(int)
+    preprocessed = (preprocessed.frames*255).astype('uint8')
 
     if (input_dict["Run Intensity Correlation Analysis"] == 'Y') and (input_dict["Run KMeans"] == 'Y'):
         # for n in range(original.shape[-1]):
@@ -234,8 +235,8 @@ def run_visualiser(input_dict):
             orig = original[:, :, :, n]
             denoised = preprocessed[:, :, :, n]
 
-            kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'])
-            plot(orig, denoised, kmeans_clusts, output_dir, "/img%s_original_kmeans" % n)
+            kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'],input_dict['threshold'])
+            plot_kmeans(orig, denoised, kmeans_clusts, output_dir, "/img%s_original_kmeans" % n)
     else:
         raise KeyError("Please select a method for colocalisation analysis") 
 
@@ -246,8 +247,8 @@ if __name__=="__main__":
     'threshold': 0.5,
     'channels': [0,1],
     'num_clusts': 20,
-    'min_dist': 5,
-    'Run Intensity Correlation Analysis': 'Y',
+    'min_dist': 10,
+    'Run Intensity Correlation Analysis': 'N',
     'Run KMeans': 'Y'}
     
     run_visualiser(inputdict)
