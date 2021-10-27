@@ -1,4 +1,3 @@
-
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -7,26 +6,161 @@ from PyQt5.QtCore import pyqtSlot
 import os
 import time
 
+# Initialise main window of the GUI
 class App(QMainWindow):
+        """
+        A class to create the main simulation window.
+        ...
+
+        Attributes
+        ----------
+
+        left: int
+            x-coordinate of the created window on screen
+        top: int
+            y-coordinate of the created window on screen
+        width: int
+            Width of the created window
+        height: int
+            Height of the created window
+
+        """
 
     def __init__(self):
+        """
+        Construct all necessary attributes for the GUI Window.       
+        """
         super().__init__()
         self.title = 'ACG Tools'
+        # Create window dimension properties
         self.left = 0
         self.top = 0
         self.width = 600
         self.height = 300
+        # Create window title property
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        
         self.table_widget = MyTableWidget(self)
         self.setCentralWidget(self.table_widget)
-        
+        # Display window
         self.show()
     
 class MyTableWidget(QWidget):
+        """
+        A class to create widgets of the GUI.
+        ...
+
+        Attributes
+        ----------
+        layout
+        
+        tabs
+        
+        tab1
+        
+        tab2
+        
+        logo
+        
+        introLabel1
+        
+        introLabel2
+        
+        introLabel3
+        
+        openFile1
+        
+        openFile1Label
+        
+        fileLabel1
+        
+        fileLabel1
+        
+        thresholdDropdown
+        
+        thresholdLabel
+        
+        thresholdDropdown
+
+        channelsDropdown
+        
+        channelsDropdownLabel
+        
+        channelsDropdown
+        
+        inputClusterNo
+        
+        inputClusterNoLabel
+        
+        clusterNoLabel
+        
+        inputMinDist
+        
+        inputMinDistLabel
+        
+        minDistLabel
+        
+        minDistLabel
+        
+        intensitycorrCheckbox
+        
+        intensitycorrLabel
+        
+        kmeansCheckbox
+        
+        kmeansLabel
+        
+        runButton
+        
+        cancelButton
+        
+        in_path
+        
+        out_path
+        
+        clusterInput
+        
+        distInput
+        
+        loading
+        
+        gif
+        
+        dict_data
+
+        Methods
+        -------
+        on_click
+        
+        define_file_path
+        
+        define_cluster_number
+        
+        define_min_distance
+        
+        start_animation
+        
+        stop_animation
+        
+        create_channels
+        
+        create_dict
+        
+        check_errors
+        
+        cancel_clicked
+        
+        run_program
+
+        """
     
     def __init__(self, parent):
+        """
+        Construct all necessary widgets for the ACG GUI and convert user inputs into object properties.
+
+        :param parent: name of main window of the GUI
+        :type parent: string
+        """
         super(QWidget, self).__init__(parent)
         self.layout = QVBoxLayout(self)
         
@@ -56,7 +190,7 @@ class MyTableWidget(QWidget):
         self.introLabel3 = QLabel('\nDefine colocalisation parameters including clustering threshold and statistical analysis type:')
         self.introLabel3.setFont(QFont('Ariel',italic=True))
 
-        # Create widgets for the setup tab inlcuding: labels, buttons, dropdowns, checkboxes, int input windows.
+        # Create widgets for the setup tab including: labels, buttons, dropdowns, checkboxes, int input windows.
         self.openFile1 = QPushButton("Open File")
         self.openFile1Label = QLabel('Select Input Images (.tif):')
         self.fileLabel1 = QLabel()
@@ -108,7 +242,7 @@ class MyTableWidget(QWidget):
         self.tab1.layout.addWidget(self.cancelButton, 12, 5)
         self.tab1.setLayout(self.tab1.layout)
 
-        # Disable/'grey-out' widgets
+        # Disable / 'Grey-out' widgets
         self.cancelButton.setDisabled(True)
         self.fileLabel1.setDisabled(True)
         self.clusterNoLabel.setDisabled(True)
@@ -129,6 +263,9 @@ class MyTableWidget(QWidget):
         
     @pyqtSlot()
     def on_click(self):
+        '''
+        This function prints the coordinates and name of a widget. 
+        '''
         print("\n")
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
             print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
@@ -144,14 +281,14 @@ class MyTableWidget(QWidget):
     
     def define_cluster_number(self):
         '''
-        This cluster labels the GUI with the user's cluster number input to confirm data entry.
+        This function labels the GUI with the user's cluster number input to confirm data entry.
         '''
         self.clusterInput, bool_info = QInputDialog.getInt(self, 'Integer Input Dialog', 'Enter cluster number:')
         self.clusterNoLabel.setText(str(self.clusterInput))
 
     def define_min_distance(self):
         '''
-        This cluster labels the GUI with the user's minimum distance input to confirm data entry.
+        This function labels the GUI with the user's minimum distance input to confirm data entry.
         '''
         self.distInput, bool_info = QInputDialog.getInt(self, 'Integer Input Dialog', 'Enter minimum distance:')
         self.minDistLabel.setText(str(self.distInput))
@@ -177,6 +314,10 @@ class MyTableWidget(QWidget):
         self.loading = None
 
     def create_channels(self):
+        '''
+        This function creates the attribute channel_list from the user inputted number of channels from the
+        dropdown menu. 
+        '''
         self.channel_list = []
         for i in range(int(self.channels_value)):
             self.channel_list.append(int(i))
@@ -235,7 +376,7 @@ class MyTableWidget(QWidget):
         analysisMsg.setWindowTitle("Input Error")
 
         # Set conditions for error messages to be delivered. Set booleans for check_error function to read. 
-        if self.in_path is 'Empty' or os.path.splitext(self.in_path)[1] not in ['.tif']:
+        if self.in_path == 'Empty' or os.path.splitext(self.in_path)[1] not in ['.tif']:
             inputMsg.exec_()
             return False
         elif self.threshold_value in ['--Threshold Value--'] or self.channels_value in ['--Channel Number--'] or len(self.minDistLabel.text()) == 0 or len(self.minDistLabel.text()) == 0:
