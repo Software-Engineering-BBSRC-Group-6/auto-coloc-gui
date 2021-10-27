@@ -1,0 +1,53 @@
+Welcome to auto-coloc-gui's documentation!
+==========================================
+
+Documentation
+=============
+
+Preprocessing
+*****************************
+.. automodule:: coloc/backend/preprocessing.py
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Preprocessing-class
+*****************************
+.. automodule:: coloc/backend/preprocessing-class.py
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Classes
+*****************************
+.. automodule:: coloc/backend/classes.py
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Visualiser
+***********************************
+.. automodule:: coloc/backend/Visualiser.py
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+GUI
+***********************************
+.. automodule:: coloc/gui/gui_one.py
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
