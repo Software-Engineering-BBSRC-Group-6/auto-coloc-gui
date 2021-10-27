@@ -1,10 +1,8 @@
 import pytest
 from ..backend.classes import pipeline_object
 import os
-from PIL import Image
 import random
 import numpy as np
-import matplotlib.pyplot as plt
 
 filepath = './coloc/tests/test-data/'
 correctname = 'colocsample1bRGB_BG.tif'
@@ -93,7 +91,7 @@ def test_pipeline_normalise(test):
 
 
 def test_pipeline_visualise(mocker):
-    """Tests that the correct number of plots are produced."""
+    """Tests that the correct number of plots are produced"""
     calls = [0, 0, 0, 0]
    
     mocker.patch('matplotlib.pyplot.show', return_value=True)
@@ -103,4 +101,7 @@ def test_pipeline_visualise(mocker):
     test_obj = pipeline_object(correctpath, filepath)
     test_obj.split()
     test_obj.visualise()
-    
+    # for patched in mocker.patch:
+    #     patched.assert_called()
+
+ 

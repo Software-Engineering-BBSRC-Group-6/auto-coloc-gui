@@ -112,7 +112,7 @@ def rescale_stack(im_3d, threshold=False):
     out = []
     s = 0
     for channel in [im_3d[:, :, i] for i in range(im_3d.shape[-1])]:
-        out.append(rescale(channel, threshold))
+        out.append(normalise(channel, threshold))
         s += 1
     return np.dstack(out)
 
@@ -207,7 +207,7 @@ def get_colocs(im,num_clusts,min_dist):
 
 def plot_colocs(originals,preprocessed,num_clusts):
     for i,im in enumerate(preprocessed):
-        fig, ax = plt.subplots(1,2)
+        _, ax = plt.subplots(1,2)
         ax[0].imshow(originals[i])
         # ax[0].axis('off')
         euc_dists=get_colocs(im,num_clusts,min_dist=3)
