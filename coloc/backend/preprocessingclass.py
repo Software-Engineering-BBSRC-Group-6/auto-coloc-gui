@@ -1,10 +1,10 @@
 # File to test the new pipeline.
-from ..backend.classes import pipeline_object
-
+# from ..backend.classes import pipeline_object
+import classes 
 
 def do_preprocess(sourcefile, outpath, threshold=False, visualise=False):
-    pipeline_full = pipeline_object(sourcefile, outpath, threshold)
-    pipeline_original = pipeline_object(sourcefile, outpath, threshold)
+    pipeline_full = classes.pipeline_object(sourcefile, outpath, threshold)
+    pipeline_original = classes.pipeline_object(sourcefile, outpath, threshold)
 
     pipeline_full.split()
     pipeline_original.split()

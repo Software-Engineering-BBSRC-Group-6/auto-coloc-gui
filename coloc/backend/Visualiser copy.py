@@ -24,7 +24,6 @@ def annotate(ax, title, coords=False):
             circle = plt.Circle((x, y), 5, color='white', fill=False)
             ax.add_artist(circle)
             ax.set_title(title)
-            ax.set_aspect(aspect=1.0)
             ax.axis("off")
     else:
         ax.set_title(title)
@@ -63,13 +62,11 @@ def correlate(preprocessed, channels, num_clusts):
     clusts = [(idx[0][i], idx[1][i]) for i in range(num_clusts)]    # Convert to tuple of coordinates
     return clusts
 
-def plot_corr(original,denoised, clusters, output_dir, filename):
+def plot_corr(image, clusters, title, output_dir, filename, visualise=False):
     """Plots an image, draws cluster markings on, and saves the figure.
 
-    :param original: Input image data
-    :type original: Numpy array of shape (height x width x channels)
-    :param denoised: Denoised image data
-    :type denoised: Numpy array of shape (height x width x channels)
+    :param image: Image data
+    :type im: Numpy array of shape (height x width x channels)
     :param title: Image title
     :type title: string
     :param output_dir: Path to output the result to
@@ -79,15 +76,11 @@ def plot_corr(original,denoised, clusters, output_dir, filename):
     :param visualise: Whether to show the plots at the end
     :type visualise: boolean, default False.
     """
-    _, ax = plt.subplots(1, 2)
-    ax[0].imshow(original)
-    ax[1].imshow(denoised)
-    titles= ['Original','Denoised']
-    for a, axis in enumerate(ax):
+    _, ax = plt.subplots(1, 1)
+    ax.imshow(image)
+    annotate(ax, title, clusters)
 
-        annotate(axis, titles[a], clusters)
-
-    plt.savefig(output_dir+filename)
+    plt.savefig(output_dir + filename)
     plt.cla()
 
 def fit_clusters(im, num_clusters):
@@ -190,7 +183,7 @@ def plot_kmeans(image, clusters, title, output_dir, filename,
         ax.add_artist(circle)
     ax.axis("off")
     ax.set_title(title)
-    plt.savefig(output_dir+filename)
+    plt.savefig(output_dir+ filename)
     plt.cla()
 
 
@@ -228,7 +221,11 @@ def run_visualiser(input_dict):
                                        input_dict['num_clusts'],
                                        input_dict['min_dist'])
 
-            plot_corr(orig,denoised,corr_clusts,output_dir,"/img%s_original_corr" % n)
+            plot_corr(orig, corr_clusts, "Original - ICA",
+                      output_dir, "img%s_original_corr" % n)
+            
+            plot_corr(denoised, corr_clusts, "Denoised - ICA",
+                      output_dir, "img%s_denoised_corr" % n)
             
             plot_kmeans(orig, kmeans_clusts, "Original - KMeans",
                         output_dir, "/img%s_original_kmeans" % n)
@@ -242,7 +239,8 @@ def run_visualiser(input_dict):
             denoised = preprocessed[:, :, :, n]
 
             corr_clusts = correlate(denoised, input_dict['channels'], input_dict['num_clusts'])
-            plot_corr(orig,denoised,corr_clusts,output_dir,"/img%s_original_corr" % n)
+            plot_corr(orig, corr_clusts, "Original - ICA", output_dir, "img%s_original_corr" % n)
+            plot_corr(denoised, corr_clusts, "Denoised - ICA", output_dir, "img%s_denoised_corr" % n)
 
     elif (input_dict["Run Intensity Correlation Analysis"] == 'N') and (input_dict["Run KMeans"] == 'Y'):
         for n in range(original.shape[-1]):
@@ -263,9 +261,8 @@ if __name__=="__main__":
     'channels': [0,1],
     'num_clusts': 5,
     'min_dist': 10,
-    'Run Intensity Correlation Analysis': 'Y',
-    'Run KMeans': 'N'}
-    
+    'Run Intensity Correlation Analysis': 'N',
+    'Run KMeans': 'Y'}
 
     run_visualiser(inputdict)
 
