@@ -1,8 +1,5 @@
-from cv2 import kmeans
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
-from scipy.stats import pearsonr
-from scipy import signal
 import numpy as np
 from math import dist
 
