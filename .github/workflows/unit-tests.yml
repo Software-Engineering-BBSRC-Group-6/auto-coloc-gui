@@ -30,7 +30,7 @@ jobs:
         python3 -m pytest coloc/tests/test-preproc.py
     - name: Check coverage
       run: |
-        coverage run -m pytest
+        coverage run -m pytest coloc/tests/test-preproc.py
     - name: Run codecov
       if: success()
       env:
