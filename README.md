@@ -5,7 +5,9 @@
 
 # ACG Tools - auto-coloc-gui
 
-![ACG Tools Logo](coloc/gui/acg_logo.png)
+<p align="center">
+  <img src="coloc/gui/acg_logo.png" alt="ACG Tools Logo"/>
+</p>
 
 A desktop image processing tool to automoate the analysis of multichannel flourescence images to quantify colocalisation available on Windows, Mac OS and Linux Debian.
 
