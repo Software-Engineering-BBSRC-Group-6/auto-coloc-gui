@@ -5,9 +5,7 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import pyqtSlot
 import os
 import time
-
-#path to output files - change this with the filepath received from the input script
-filesPath = "/Users/cameronanderson/Documents/AA_Oxford_Notes/DPhil_Oxford/Courses_Year1/Software_Dev/coloc-gui/auto-coloc-gui/data/output"
+from Visualiser import run_visualiser # Is this the correct way to call dependencies scripts
 
 class App(QMainWindow):
 
@@ -42,7 +40,7 @@ class MyTableWidget(QWidget):
         
         # Add tabs
         self.tabs.addTab(self.tab1,"Setup")
-        self.tabs.addTab(self.tab2,"View")
+        # self.tabs.addTab(self.tab2,"View")
         
         # TAB 1
 
@@ -125,29 +123,7 @@ class MyTableWidget(QWidget):
         self.inputClusterNo.clicked.connect(self.define_cluster_number)
         self.runButton.clicked.connect(self.run_program)
 
-        #TAB 2
-
-        #Create Tab 2 - View
-        self.tab2.layout = QGridLayout(self)
-
-        #Creates objects to be displayed
-        self.previous_button = QPushButton("Previous")
-        self.next_button = QPushButton("Next")
-        self.label = QLabel()
-
-        # Add widgets and define positioning on QGridLayout
-        self.tab2.layout.addWidget(self.previous_button, 0, 0)
-        self.tab2.layout.addWidget(self.next_button, 0, 3)
-        self.tab2.layout.addWidget(self.label, 1, 1, 1, 2)
-        self.tab2.setLayout(self.tab2.layout)
-
-        #handles button click events
-        self.previous_button.clicked.connect(self.handle_previous)
-        self.next_button.clicked.connect(self.handle_next)
-        self._update_button_status(False, True)
-
-        #Loads data in from the filepath
-        self.load_files(filesPath) #Make this into the outpath after testing
+        #Tab 2 - Visualiser is created in the activate_visualiser() function
 
         # Add tabs to widget
         self.layout.addWidget(self.tabs)
@@ -159,7 +135,9 @@ class MyTableWidget(QWidget):
         for currentQTableWidgetItem in self.tableWidget.selectedItems():
             print(currentQTableWidgetItem.row(), currentQTableWidgetItem.column(), currentQTableWidgetItem.text())
     
+    # ------------------------
     # TAB 1 - INPUT FUNCTIONS
+    # ------------------------
 
     def define_file_path(self):
         '''
@@ -169,6 +147,7 @@ class MyTableWidget(QWidget):
         self.in_path = QFileDialog.getOpenFileName(self,"Choose TIF File To Open","E:\\")[0]
         self.out_path = self.in_path.replace(os.path.basename(self.in_path), "")
         self.fileLabel1.setText('{}'.format(os.path.basename(self.in_path)))
+        return self.out_path
     
     def define_cluster_number(self):
         '''
@@ -229,6 +208,7 @@ class MyTableWidget(QWidget):
             dict_data["Run Intensity Correlation Analysis"] = "N"
 
         self.dict_data = dict_data
+        return self.dict_data
 
     def check_errors(self):
         '''
@@ -236,9 +216,9 @@ class MyTableWidget(QWidget):
         also checks that necessary parameters have been selected for the model to run.
         '''
         # Access threshold and chennels inputs
-        threshold_value = str(self.thresholdDropdown.currentText())
-        channels_value = str(self.channelsDropdown.currentText())
-        scale_value = str(self.scaleDropdown.currentText())
+        self.threshold_value = str(self.thresholdDropdown.currentText())
+        self.channels_value = str(self.channelsDropdown.currentText())
+        self.scale_value = str(self.scaleDropdown.currentText())
 
         # Create Error message widgets
         inputMsg = QMessageBox()
@@ -264,7 +244,7 @@ class MyTableWidget(QWidget):
         if self.in_path is 'Empty' or os.path.splitext(self.in_path)[1] not in ['.tif']:
             inputMsg.exec_()
             return False
-        elif threshold_value in ['--Threshold Value--'] or channels_value in ['--Channel Number--'] or scale_value in ['--Image Scale--'] or len(self.clusterNoLabel.text()) == 0:
+        elif self.threshold_value in ['--Threshold Value--'] or self.channels_value in ['--Channel Number--'] or self.scale_value in ['--Image Scale--'] or len(self.clusterNoLabel.text()) == 0:
             parameterMsg.exec_()
             return False
         elif self.kmeansCheckbox.isChecked() == False and self.intensitycorrCheckbox.isChecked() == False:
@@ -287,35 +267,82 @@ class MyTableWidget(QWidget):
         This function is the overall controller of the script. It checks for input errors by calling the check_errors function. 
         If this passes, the function creates the input dictionary, calls the model and the visualiser to display the results.
         '''
+        # Check that inputs are valid before running program
         if self.check_errors() is False:
             return
         else:
+            # Start loading wheel and disable Run button
             self.start_animation()
             self.runButton.setDisabled(True)
             self.cancelButton.setDisabled(False)
+            # Define actions if Cancel button is clicked
             self.cancelButton.clicked.connect(self.cancel_clicked)
+            # Create output directory using timestamp and input file path
             timestamp = time.strftime("%Y%m%d-%H%M%S")
             self.out_path = self.out_path + "acg_output_{}".format(timestamp)
             os.mkdir(self.out_path)
             self.out_path = self.out_path + "/"
-            self.create_dict()
-            print(self.dict_data)
-            """
-            danFunction(self.dict_data)
-            amitFunction(self.out_path)
-            """
+            # Create the input dictionary from user inputs
+            input_dict = self.create_dict()
+            # Run the image analysis using the input dictionary
+            run_visualiser(input_dict)
+            # Activate the View tab with the visualiser and cancel the loading animation
+            # when image analysis is complete
+            self.activate_visualiser()
+            self.cancel_clicked()
 
+    def activate_visualiser(self):
+        '''
+        This function is called when the model has completed the image analysis. It activates the View tab and 
+        adds the visualisation widgets. It also produces a message box that confirms to the user that the program 
+        has completed.
+        '''
 
+        # Create message box to confirm that image analysis is complete
+        finishedMsg = QMessageBox()
+        finishedMsg.setIcon(QMessageBox.Warning)
+        finishedMsg.setText("Run Complete")
+        finishedMsg.setInformativeText("Image analysis complete. \nPlease select the 'view' tab to explore results. \nOutput images saved to directory in input file directory.")
+        finishedMsg.setWindowTitle("Complete")
+        finishedMsg.exec_()
+
+        # Create Tab 2 - View
+        self.tabs.addTab(self.tab2,"View")
+        self.tab2.layout = QGridLayout(self)
+
+        # Creates widgets
+        self.previous_button = QPushButton("Previous")
+        self.next_button = QPushButton("Next")
+        self.label = QLabel()
+
+        # Add widgets and define positioning on QGridLayout
+        self.tab2.layout.addWidget(self.previous_button, 0, 0)
+        self.tab2.layout.addWidget(self.next_button, 0, 3)
+        self.tab2.layout.addWidget(self.label, 1, 1, 1, 2)
+        self.tab2.setLayout(self.tab2.layout)
+
+        # Handles button click events
+        self.previous_button.clicked.connect(self.handle_previous)
+        self.next_button.clicked.connect(self.handle_next)
+        self._update_button_status(False, True)
+
+        #Loads data in from the filepath
+        self.load_files() 
+        
+    
+    # ------------------------
     # TAB 2 - VISUALISER FUNCTIONS
+    # ------------------------
 
-    def load_files(self, filesPath):
+    def load_files(self):
         '''
         Loads the files in from filesPath and
         sets the index counter to 0
         '''
-        for file in os.listdir(filesPath):
+        self.filesPath = self.out_path
+        for file in os.listdir(self.filesPath):
             if file.endswith(".png"):
-                self._filenames.append(os.path.join(filesPath, file))
+                self._filenames.append(os.path.join(self.filesPath, file))
         self._filenames = sorted(self._filenames)
         print (self._filenames)
         self.current_index = 0
