@@ -1,6 +1,7 @@
 [![Python Version Compatability and Flake-8](https://github.com/Software-Engineering-BBSRC-Group-6/auto-coloc-gui/actions/workflows/python-version.yml/badge.svg)](https://github.com/Software-Engineering-BBSRC-Group-6/auto-coloc-gui/actions/workflows/python-version.yml)
 [![Check Systems Compatability](https://github.com/Software-Engineering-BBSRC-Group-6/auto-coloc-gui/actions/workflows/system-compatability.yml/badge.svg)](https://github.com/Software-Engineering-BBSRC-Group-6/auto-coloc-gui/actions/workflows/system-compatability.yml)
 [![codecov](https://codecov.io/gh/Software-Engineering-BBSRC-Group-6/auto-coloc-gui/branch/main/graph/badge.svg?token=0jS0kYRsze)](https://codecov.io/gh/Software-Engineering-BBSRC-Group-6/auto-coloc-gui)
+[![Documentation Status](https://readthedocs.org/projects/auto-coloc-gui/badge/?version=main)](https://auto-coloc-gui.readthedocs.io/en/main/?badge=main)
 
 # auto-coloc-gui
 
