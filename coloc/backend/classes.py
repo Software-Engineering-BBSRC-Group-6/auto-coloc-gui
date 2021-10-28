@@ -4,6 +4,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import tifffile
 
 
 class pipeline_object():
@@ -31,9 +32,10 @@ class pipeline_object():
         if ((not isinstance(threshold, float)) and (threshold is not False)):
             raise TypeError('Invalid type for threshold.')
         self.threshold = threshold
-        im = Image.open(self.filepath)
-        self.image_obj = im
-        self.smallest_dim = min(self.image_obj.size)
+        im = tifffile.imread(self.filepath)
+        #im = Image.open(self.filepath)
+        self.frames = np.moveaxis(im, (0, 1, 2, 3), (3, 2, 0, 1))
+        self.smallest_dim = min(self.frames.shape[0:2])
 
     def reshape(self):
         """Reshapes an image such that the dimensions are square, using the dimension
@@ -65,9 +67,8 @@ class pipeline_object():
         for i in range(self.num_frames):
             self.image_obj.seek(i)
             tempimg = self.image_obj
-            #tempimg = self.image_obj.convert('RGB')
-            self.frames[:, :, :, i] = np.asarray(tempimg)
-
+            self.frames[:, :, :, i] = np.asarray(Image.fromarray(np.uint8(np.asarray(tempimg) / 255)).convert('RGB'))
+            #self.frames[:, :, :, i] = np.asarray(tempimg)
         return
 
     def normalise(self, j):

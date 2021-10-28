@@ -258,7 +258,7 @@ def run_visualiser(input_dict):
 
 if __name__=="__main__":
     inputdict = {
-    # 'in_path': './data/input/colocsample1bRGB_BG.tif',
+    #'in_path': './data/input/colocsample1bRGB_BG.tif',
     'in_path': './data/input/Composite_12156.tif',       # Other .tif files not working, need to check array shape/preprocessed is consistent
     'out_path': './data/output',
     'threshold': 0.5,
