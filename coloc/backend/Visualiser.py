@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import numpy as np
 import math
-import preprocessingclass
+from ..backend.preprocessingclass import do_preprocess
 
 def correlate(preprocessed, channels, num_clusts):
     """Returns the centres of clusters based on their PMCC.
@@ -185,7 +185,7 @@ def run_visualiser(input_dict):
 
     print("Preprocessing")
 
-    original, preprocessed = preprocessingclass.do_preprocess(sourcefile, input_dict['threshold'])
+    original, preprocessed = do_preprocess(sourcefile, input_dict['threshold'])
     original = original.frames.astype(int)
     preprocessed = (preprocessed.frames*255).astype(int)
 
