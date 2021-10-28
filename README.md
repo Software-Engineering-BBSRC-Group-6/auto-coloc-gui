@@ -44,7 +44,7 @@ Please find the appropriate installation executable for your operating system wi
 4) Select the `scale` of the images between 1μM and 500μM.
 5) Define the desired number of `clusters` between 10 and 50.
 - Clusters determines the number of colocalisations detected.
-6) Specify the `type of analysis` - Intensity correlation analysis (based on fluoresence correlation) OR [Kmeans](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html) analysis (groups datapoints which are similar).
+6) Specify the `type of analysis` - Intensity correlation analysis (based on fluorescence correlation) OR [Kmeans](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html) analysis (groups datapoints which are similar).
 7) Press `run` - model run time can vary based on local resources.
 8) Click on the `view` tab to view the original and denoised image side by side.
 9) Use the `Next` and `Previous` buttons to move between the generated images.
