@@ -3,9 +3,9 @@ from sklearn.cluster import KMeans
 import numpy as np
 import math
 import preprocessingclass
+import os
 
-
-def correlate(preprocessed, channels, num_clusts):
+def correlate(denoised, channels, num_clusts):
     """Returns the centres of clusters based on Intensity Correlation Analysis (ICA).
 
     :param preprocessed: Preprocessed image data
@@ -19,10 +19,13 @@ def correlate(preprocessed, channels, num_clusts):
     :return clusts: List of (x, y) coordinates of cluster centres.
     :type clusts: List of tuples.
     """
-    chan1, chan2 = [preprocessed[:, :, c] for c in channels]
+    chan1, chan2 = [denoised[:, :, c] for c in channels]
     shape = np.shape(chan1)
     if np.shape(chan2) != shape:
         raise ValueError("Input arrays must have the same shape")
+
+    if np.array_equal(chan1, chan2):
+        raise ValueError("Input channels are identical")
 
     mu1 = np.mean(chan1)
     mu2 = np.mean(chan2)
@@ -50,6 +53,8 @@ def fit_clusters(im, num_clusters):
     :type clusts: list of tuples? # NB check this
     """
 
+    if 0 not in im:
+        raise ValueError("No zero values, please apply a threshold")
     xrange, yrange = np.shape(im)
     out = []
     for x in range(xrange):
@@ -227,11 +232,22 @@ def run_visualiser(input_dict):
     for key in default_params.keys():
         if key not in input_dict.keys():
             input_dict[key] = default_params[key]
+    
+
+    if not os.path.isfile(sourcefile):
+        raise KeyError("%s does not exist" % (sourcefile))
+
+    if not os.path.isdir(output_dir):
+        raise KeyError("%s does not exist" % (output_dir))
+    if (input_dict['threshold']==0) or (input_dict['threshold']==1):
+        raise ValueError("Please enter a threshold between (but not including) 0 and 1 ")
+
     print("=========================================\n",
           "=========================================")
     print("**WELCOME TO THE AUTOMATED COLOCALISATION GUI**\n")
     print("Analysing files from ", sourcefile)
     print("Preprocessing")
+
 
     original, preprocessed = preprocessingclass.do_preprocess(sourcefile,
                                                               output_dir,
@@ -323,4 +339,83 @@ if __name__ == "__main__":
         'min_dist': 20,
         'Run Intensity Correlation Analysis': 'Y',
         'Run KMeans': 'Y'}
-    run_visualiser(inputdict)
+    # run_visualiser(inputdict)
+
+
+
+import pytest
+class Vistest():
+    def __init__(self):
+        self.rand1= np.random.randint(0, 255, size=(150, 150, 2))
+        np.random.seed(0)
+        self.rand2= np.random.randint(0, 255, size=(150, 150))
+        self.im = np.asarray(np.dstack([self.rand2, self.rand2]))
+        self.channels=[0, 1]
+        self.testdict = {'in_path': './data/input/colocsample1bRGB_BG.tif',
+                        'out_path': './data/output',
+                        'threshold': 0.5,
+                        'channels': [0, 1],
+                        'num_clusts': 10,
+                        'min_dist': 20,
+                        'Run Intensity Correlation Analysis': 'Y',
+                        'Run KMeans': 'Y'}
+
+    def test_correlate(self):
+
+        # If 1 cluster is passed, the output array should have length 1
+
+        assert len(correlate(self.rand1, self.channels, 1)) == 1
+        
+        # If the arrays are the same, an error should be raised
+
+        with pytest.raises(ValueError):
+            correlate(self.im, self.channels, 1)
+
+    def test_fit_clusters(self):
+
+        # If 1 cluster is passed, the output array should have length <=1
+
+        assert len(fit_clusters(self.rand2, 1)) == 1
+
+        # If no pixels are zeroed out, an error should be thrown
+        with pytest.raises(ValueError):
+            fit_clusters(np.ones(np.shape(self.rand2)),1)
+
+        # (thresholding is not working )
+    
+    def test_run_visualiser(self):
+
+    # If source file does not exist, raise error
+        tdict=self.testdict.copy()
+        tdict['in_path'] = "testfileXXX"
+        with pytest.raises(KeyError):
+            run_visualiser(tdict)
+
+    # If outpath does not exist, raise error
+        tdict2=self.testdict.copy()
+        tdict2['out_path'] = "testdirectoryXXX"
+        with pytest.raises(KeyError):
+            run_visualiser(tdict2)
+
+        tdict3=self.testdict.copy()
+        tdict3['threshold']=1
+        with pytest.raises(ValueError):
+            run_visualiser(tdict3)
+        
+        tdict4=self.testdict.copy()
+        tdict4['channels']=[0,1,2]
+        with pytest.raises(ValueError):
+            run_visualiser(tdict4)
+        
+        tdict5=self.testdict.copy()
+        tdict5['Run Intensity Correlation Analysis']= 'N'
+        tdict5['Run KMeans']= 'N'
+        with pytest.raises(KeyError):
+            run_visualiser(tdict5)
+
+vis = Vistest()
+vis.test_correlate()
+vis.test_fit_clusters()
+vis.test_run_visualiser()
+
+

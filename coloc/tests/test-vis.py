@@ -1,37 +1,80 @@
 import pytest
+import numpy as np
+from ..backend.visualiser import correlate, fit_clusters, run_visualiser
 
 # Tests for visualiser.py
 
-def test_correlate():
-    # If 1 cluster is passed, the output array should have length 1
-    # If one array is all zeros, the output should have no clusters
-    # If the arrays are the same, an error should be raised
 
+class Vistest():
+    def __init__(self):
+        self.rand1= np.random.randint(0, 255, size=(150, 150, 2))
+        np.random.seed(0)
+        self.rand2= np.random.randint(0, 255, size=(150, 150))
+        self.im = np.asarray(np.dstack([self.rand2, self.rand2]))
+        self.channels=[0, 1]
+        self.testdict = {'in_path': './data/input/colocsample1bRGB_BG.tif',
+                        'out_path': './data/output',
+                        'threshold': 0.5,
+                        'channels': [0, 1],
+                        'num_clusts': 10,
+                        'min_dist': 20,
+                        'Run Intensity Correlation Analysis': 'Y',
+                        'Run KMeans': 'Y'}
 
-def test_fit_clusters():
-    # If 1 cluster is passed, the output array should have length <=1
-    # If no pixels are zeroed out, an error should be thrown
-    # (thresholding is not working )
+    def test_correlate(self):
 
-def test_compare_dists():
-    # If cluster lists are of unequal lengths, should raise an error
-    # Centroid distance between clusters at (1,1) and (2,2) should be root(2)
-    # Centroid distance between clusters at (1,1) and (1,1) should be zero
-    # the output centroid between two clusters at (1,1) and (2,2) should be (2,2) as int
+        # If 1 cluster is passed, the output array should have length 1
 
-def test_get_colocs():
-    # If 0 or 3 channels fed to the function, it should raise a value error
-    # If arrays of different types are passed to the function, it should raise a value error
-    # Passing an input with num_clusts =1 should return a dictionary with <= 1 pair
+        assert len(correlate(self.rand1, self.channels, 1)) == 1
+        
+        # If the arrays are the same, an error should be raised
 
-def test_run_visualiser():
-    testdict = {
-    'in_path': './data/input/colocsample1bRGB_BG.tif',
-    # 'in_path': './data/input/Composite_12156.tif',
-    'out_path': './data/output',
-    'threshold': 0.5,
-    'channels': [0, 1],
-    'num_clusts': 10,
-    'min_dist': 20,
-    'Run Intensity Correlation Analysis': 'Y',
-    'Run KMeans': 'Y'}
+        with pytest.raises(ValueError):
+            correlate(self.im, self.channels, 1)
+
+    def test_fit_clusters(self):
+
+        # If 1 cluster is passed, the output array should have length <=1
+
+        assert len(fit_clusters(self.rand2, 1)) == 1
+
+        # If no pixels are zeroed out, an error should be thrown
+        with pytest.raises(ValueError):
+            fit_clusters(np.ones(np.shape(self.rand2)),1)
+
+        # (thresholding is not working )
+    
+    def test_run_visualiser(self):
+
+    # If source file does not exist, raise error
+        tdict=self.testdict.copy()
+        tdict['in_path'] = "testfileXXX"
+        with pytest.raises(KeyError):
+            run_visualiser(tdict)
+
+    # If outpath does not exist, raise error
+        tdict2=self.testdict.copy()
+        tdict2['out_path'] = "testdirectoryXXX"
+        with pytest.raises(KeyError):
+            run_visualiser(tdict2)
+
+        tdict3=self.testdict.copy()
+        tdict3['threshold']=1
+        with pytest.raises(ValueError):
+            run_visualiser(tdict3)
+        
+        tdict4=self.testdict.copy()
+        tdict4['channels']=[0,1,2]
+        with pytest.raises(ValueError):
+            run_visualiser(tdict4)
+        
+        tdict5=self.testdict.copy()
+        tdict5['Run Intensity Correlation Analysis']= 'N'
+        tdict5['Run KMeans']= 'N'
+        with pytest.raises(KeyError):
+            run_visualiser(tdict5)
+
+vis = Vistest()
+vis.test_correlate()
+vis.test_fit_clusters()
+vis.test_run_visualiser()
