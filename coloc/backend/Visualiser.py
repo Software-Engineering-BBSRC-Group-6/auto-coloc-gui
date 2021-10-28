@@ -128,7 +128,7 @@ def get_colocs(im, channels, num_clusts, max_dist):
     chan1, chan2 = [im[:, :, c] for c in channels]
     if chan1.shape != chan2.shape:
         raise ValueError("Input arrays must have the same shape")
-    c1_clusters = fit_clusters(chan1, num_clusts) 
+    c1_clusters = fit_clusters(chan1, num_clusts)
     c2_clusters = fit_clusters(chan2, num_clusts)
 
     return compare_dists(c1_clusters, c2_clusters, max_dist)
@@ -242,6 +242,7 @@ def run_visualiser(input_dict):
     original, preprocessed = preprocessingclass.do_preprocess(sourcefile,
                                                               output_dir,
                                                               threshold=input_dict['threshold'])
+
     # Rescale in range (0, 255)
     original = (original.frames*255).astype(int) 
     preprocessed = (preprocessed.frames*255).astype(int)
@@ -266,8 +267,7 @@ def run_visualiser(input_dict):
                 kmeans_clusts = get_colocs(denoised, 
                                            input_dict['channels'],
                                            input_dict['num_clusts'],
-                                           input_dict['min_dist'],
-                                           input_dict['threshold'])
+                                           input_dict['min_dist'])
                 plot_kmeans(orig, denoised, kmeans_clusts,
                             output_dir, "/0%s_kmeans" % n)
             except ValueError:
@@ -303,8 +303,7 @@ def run_visualiser(input_dict):
                 kmeans_clusts = get_colocs(denoised,
                                            input_dict['channels'],
                                            input_dict['num_clusts'],
-                                           input_dict['min_dist'],
-                                           input_dict['threshold'])
+                                           input_dict['min_dist'])
                 plot_kmeans(orig, denoised, kmeans_clusts,
                             output_dir, "/0%s_kmeans" % n)
             except ValueError:
