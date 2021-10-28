@@ -27,11 +27,11 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Run PyTest
       run: |
-        python3 -m pytest coloc/tests/test-preproc.py
-        python3 -m pytest coloc/tests/test-proc.py
+        python3 -m pytest ./coloc/tests/test-preproc.py
+        python3 -m pytest ./coloc/tests/test-vis.py
     - name: Check coverage
       run: |
-        coverage run -m pytest
+        coverage run -m pytest ./coloc/tests/*
     - name: Run codecov
       if: success()
       env:
