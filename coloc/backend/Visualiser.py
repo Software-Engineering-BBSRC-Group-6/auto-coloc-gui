@@ -145,7 +145,8 @@ def plot(original,denoised, clusters, output_dir, filename):
     :param filename: Name to output file as
     :type filename: string
     """
-    _, ax = plt.subplots(1, 2)
+    fig, ax = plt.subplots(1, 2)
+    fig.suptitle("Intensity Correlation Analysis")
     ax[0].imshow(original)
     ax[1].imshow(denoised)
     titles= ['Original','Denoised']
@@ -159,15 +160,17 @@ def plot_kmeans(original, denoised, clusters, output_dir, filename):
     """Plots circles corresponding to overlapping kmeans centroids in the data
     
     """
-    _, ax = plt.subplots(1, 2)
+    fig, ax = plt.subplots(1, 2)
+    fig.suptitle("K-means")
     ax[0].imshow(original)
     ax[1].imshow(denoised)
     titles=['Original','Denoised']
     for a,axis in enumerate(ax):
-        for pair in clusters.keys():
-            coords = tuple(clusters[pair]["Avg"])
-            circle = plt.Circle(coords, 5, color='white', fill=False)
-            axis.add_artist(circle)
+        if clusters:
+            for pair in clusters.keys():
+                coords = tuple(clusters[pair]["Avg"])
+                circle = plt.Circle(coords, 5, color='white', fill=False)
+                axis.add_artist(circle)
         axis.set_title(titles[a])
         axis.axis("off")
 
@@ -196,16 +199,20 @@ def run_visualiser(input_dict):
     preprocessed = (preprocessed.frames*255).astype(int)
 
     if (input_dict["Run Intensity Correlation Analysis"] == 'Y') and (input_dict["Run KMeans"] == 'Y'):
-        for n in range(original.shape[-1]):
-        # for n in [8,9]:   # For debugging only
+        # for n in range(original.shape[-1]):
+            
+        for n in [3, 8,9]:   # For debugging only
             orig = original[:, :, :, n]
             denoised = preprocessed[:, :, :, n]
 
             corr_clusts = correlate(denoised, input_dict['channels'], input_dict['num_clusts'])
             plot(orig, denoised, corr_clusts, output_dir, "/img%s_original_corr" % n)
-                   
-            kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'],input_dict['threshold'])
-            plot_kmeans(orig, denoised, kmeans_clusts, output_dir,"/img%s_original_kmeans" % n)
+            try:
+                kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'],input_dict['threshold'])
+                plot_kmeans(orig, denoised, kmeans_clusts, output_dir,"/img%s_original_kmeans" % n)
+            except ValueError:
+                print("No clusters found for image %s"%(str(n)))
+                plot_kmeans(orig, denoised, None, output_dir,"/img%s_original_kmeans" % n)
         
     elif (input_dict["Run Intensity Correlation Analysis"] == 'Y') and (input_dict["Run KMeans"] == 'N'):
         for n in range(original.shape[-1]):
@@ -217,23 +224,27 @@ def run_visualiser(input_dict):
 
     elif (input_dict["Run Intensity Correlation Analysis"] == 'N') and (input_dict["Run KMeans"] == 'Y'):
         for n in range(original.shape[-1]):
-        # for n in [8,9]:
+        # for n in [8,9]:   # For debugging only
             orig = original[:, :, :, n]
             denoised = preprocessed[:, :, :, n]
-
-            kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'],input_dict['threshold'])
-            plot_kmeans(orig, denoised, kmeans_clusts, output_dir, "/img%s_original_kmeans" % n)
+            try:
+                kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'],input_dict['threshold'])
+                plot_kmeans(orig, denoised, kmeans_clusts, output_dir,"/img%s_original_kmeans" % n)
+            except ValueError:
+                print("No clusters found for image %s"%(str(n)))
+                plot_kmeans(orig, denoised, None, output_dir,"/img%s_original_kmeans" % n)
     else:
         raise KeyError("Please select a method for colocalisation analysis") 
 
 if __name__=="__main__":
     inputdict = {
     'in_path': './data/input/colocsample1bRGB_BG.tif',
+    # 'in_path': './data/input/Composite_12156.tif',       # Other .tif files not working, need to check array shape/preprocessed is consistent
     'out_path': './data/output',
     'threshold': 0.5,
     'channels': [0,1],
     'num_clusts': 10,
-    'min_dist': 20,
+    'min_dist': 10,
     'Run Intensity Correlation Analysis': 'Y',
     'Run KMeans': 'Y'}
     
