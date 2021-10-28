@@ -29,7 +29,7 @@ def correlate(denoised, channels, num_clusts):
 
     mu1 = np.mean(chan1)
     mu2 = np.mean(chan2)
-    
+
     out = np.zeros(shape)
     for x in range(shape[0]):
         for y in range(shape[1]):
@@ -135,7 +135,7 @@ def get_colocs(im, channels, num_clusts, max_dist):
 
 def annotate(ax, title, coords=False):
     """Adds a circle and/title to a given position in an ICA plot.
-    
+
     :param ax: Axis to add the circle
     :type ax: matplotlib.pyplot axis object
     :param title: Title to add to the axes
@@ -232,7 +232,7 @@ def run_visualiser(input_dict):
     for key in default_params.keys():
         if key not in input_dict.keys():
             input_dict[key] = default_params[key]
-    
+
 
     if not os.path.isfile(sourcefile):
         raise KeyError("%s does not exist" % (sourcefile))
@@ -254,7 +254,7 @@ def run_visualiser(input_dict):
                                                               threshold=input_dict['threshold'])
 
     # Rescale in range (0, 255)
-    original = (original.frames*255).astype(int) 
+    original = (original.frames*255).astype(int)
     preprocessed = (preprocessed.frames*255).astype(int)
     print("Complete")
     print("==================================\n")
@@ -274,7 +274,7 @@ def run_visualiser(input_dict):
             print("\tRunning KMeans")
 
             try:
-                kmeans_clusts = get_colocs(denoised, 
+                kmeans_clusts = get_colocs(denoised,
                                            input_dict['channels'],
                                            input_dict['num_clusts'],
                                            input_dict['min_dist'])
@@ -287,7 +287,7 @@ def run_visualiser(input_dict):
                 plot_kmeans(orig, denoised, None,
                             output_dir, "/0%s_kmeans" % n)
             print("\tSaved")
-        
+
     elif (input_dict["Run Intensity Correlation Analysis"] == 'Y') and (input_dict["Run KMeans"] == 'N'):
         for n in range(original.shape[-1]):
             print("\nProcessing Image %s/%s" % (str(n+1),
@@ -365,7 +365,7 @@ class Vistest():
         # If 1 cluster is passed, the output array should have length 1
 
         assert len(correlate(self.rand1, self.channels, 1)) == 1
-        
+
         # If the arrays are the same, an error should be raised
 
         with pytest.raises(ValueError):
@@ -382,7 +382,7 @@ class Vistest():
             fit_clusters(np.ones(np.shape(self.rand2)),1)
 
         # (thresholding is not working )
-    
+
     def test_run_visualiser(self):
 
     # If source file does not exist, raise error
@@ -401,12 +401,12 @@ class Vistest():
         tdict3['threshold']=1
         with pytest.raises(ValueError):
             run_visualiser(tdict3)
-        
+
         tdict4=self.testdict.copy()
         tdict4['channels']=[0,1,2]
         with pytest.raises(ValueError):
             run_visualiser(tdict4)
-        
+
         tdict5=self.testdict.copy()
         tdict5['Run Intensity Correlation Analysis']= 'N'
         tdict5['Run KMeans']= 'N'
@@ -417,5 +417,3 @@ vis = Vistest()
 vis.test_correlate()
 vis.test_fit_clusters()
 vis.test_run_visualiser()
-
-

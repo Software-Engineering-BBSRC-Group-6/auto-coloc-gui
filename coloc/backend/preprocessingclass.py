@@ -8,8 +8,8 @@ def do_preprocess(sourcefile, outpath, threshold=False, visualise=False):
     pipeline_original = classes.pipeline_object(sourcefile,
                                                 outpath, threshold=False)
 
-    pipeline_full.split()
-    pipeline_original.split()
+    #pipeline_full.split()
+    #pipeline_original.split()
 
     pipeline_full.reshape()
     pipeline_original.reshape()
