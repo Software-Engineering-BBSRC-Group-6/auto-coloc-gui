@@ -11,7 +11,7 @@
 
 A desktop image processing tool to automoate the analysis of multichannel flourescence images to quantify colocalisation available on Windows, Mac OS and Linux Debian.
 
-[Read the docs](https://software-engineering-bbsrc-group-6.github.io/auto-coloc-gui/)
+[Read the docs](https://auto-coloc-gui.readthedocs.io/en/main/)
 
 ## Authors
 
