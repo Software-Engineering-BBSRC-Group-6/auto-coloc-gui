@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import numpy as np
-from math import dist
+import math
 import preprocessingclass
 
 
@@ -14,7 +14,6 @@ def correlate(preprocessed, channels, num_clusts):
     :type channels: list of integers of length 2
     :param num_clusts: Number of clusters to output
     :type num_clusts: integer
-
     :return out: Intensity Correlation Analysis (ICA) array for every pixel in the image.
     :type out: numpy array
     :return clusts: List of (x, y) coordinates of cluster centres.
@@ -43,12 +42,10 @@ def correlate(preprocessed, channels, num_clusts):
 
 def fit_clusters(im, num_clusters):
     """Fits a series of k-means clusters using Scikit-Learn.
-
     :param im: image data
     :type im: numpy array of dims (heightxwidthxn-channels)
     :param num_clusters: Number of clusters to fit to the data
     :type num_clusters: int
-
     :return clusts: Coordinates of the centres of clusters
     :type clusts: list of tuples? # NB check this
     """
@@ -69,7 +66,6 @@ def fit_clusters(im, num_clusters):
 
 def compare_dists(ch1_clusters, ch2_clusters, max_dist):
     """Compares the distances between centroids of channel 1 and 2 clusters.
-
     :param ch1_clusters: List of the coordinates of all cluster centres for channel 1
     :type ch1_clusters: list of tuples (x, y)
     :param ch2_clusters: List of the coordinates of all cluster centres for channel 2
@@ -87,7 +83,7 @@ def compare_dists(ch1_clusters, ch2_clusters, max_dist):
     for c1_clust in ch1_clusters:
         for c2_clust in ch2_clusters:
             # Compute euclidean distance
-            centroid_dist = dist(c1_clust, c2_clust)
+            centroid_dist = math.dist(c1_clust, c2_clust)
             # Check vs. distance criterion
             if centroid_dist < max_dist:
                 euc_dists["Pair %s" % (n)] = {}
@@ -108,7 +104,6 @@ def compare_dists(ch1_clusters, ch2_clusters, max_dist):
 def get_colocs(im, channels, num_clusts, max_dist):
     """Compare two chanels of an image and return the set of KMeans cluster centroids.
     Centroids fall within a minimum distance of one another.
-
     :param im: Image data to compare
     :type im: Numpy array of shape (height x width x channels)
     :param channels: index of the channels of interest, defaults to [0,1]
@@ -117,7 +112,6 @@ def get_colocs(im, channels, num_clusts, max_dist):
     :type num_clusts: int
     :param max_dist: Maximum allowed distance between cluster centres
     :type max_dist: float
-
     :return euc_dists: Average positions of cluster centres for cluster positions closest to each other.
     :type euc_dists: list of tuples
     """
