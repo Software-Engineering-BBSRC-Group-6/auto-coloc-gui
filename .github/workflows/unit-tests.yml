@@ -32,7 +32,6 @@ jobs:
     - name: Check coverage
       run: |
         coverage run -m pytest
-        coverage run -m pytest
     - name: Run codecov
       if: success()
       env:
