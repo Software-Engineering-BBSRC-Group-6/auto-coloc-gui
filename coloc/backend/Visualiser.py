@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import numpy as np
 import math
-import preprocessingclass
+from ..backend.preprocessingclass import do_preprocess
 import os
 
 def correlate(denoised, channels, num_clusts):
@@ -248,10 +248,9 @@ def run_visualiser(input_dict):
     print("Analysing files from ", sourcefile)
     print("Preprocessing")
 
-
-    original, preprocessed = preprocessingclass.do_preprocess(sourcefile,
-                                                              output_dir,
-                                                              threshold=input_dict['threshold'])
+    original, preprocessed = do_preprocess(sourcefile,
+                                           output_dir,
+                                           threshold=input_dict['threshold'])
 
     # Rescale in range (0, 255)
     original = (original.frames*255).astype(int)

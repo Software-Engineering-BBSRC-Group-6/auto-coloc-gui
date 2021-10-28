@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
-from ..backend.visualiser import correlate, fit_clusters, run_visualiser
+import matplotlib.pyplot as plt
+from ..backend.Visualiser import correlate, fit_clusters, run_visualiser, annotate
 
 # Tests for visualiser.py
 
@@ -73,6 +74,25 @@ class Vistest():
         tdict5['Run KMeans']= 'N'
         with pytest.raises(KeyError):
             run_visualiser(tdict5)
+
+
+def test_annotate_title():
+    _, ax = plt.subplots(1, 1)
+    title = 'Hello'
+    annotate(ax, title)
+    assert ax.get_title(loc='center') == title
+
+@pytest.mark.parametrize('test',
+    [((20, 20),),
+     ((30, 50),),
+     ((3, 3),),   # Should this still pass for radius 5?
+     ]
+)
+def test_annotate_circle(test):
+    _, ax = plt.subplots(1, 1)
+    annotate(ax, 'Hello', coords=test)
+    assert ax.get_lines
+
 
 vis = Vistest()
 vis.test_correlate()
