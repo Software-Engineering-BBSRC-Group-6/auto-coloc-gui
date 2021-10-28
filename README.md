@@ -33,7 +33,7 @@ Please find the appropriate installation executable for your operating system wi
 * MacOS Monterey 
 * Debian Linux Ubuntu LTS 20.04.3
 ## Usage
-1) Select a .TIFF image stack to be processed
+** 1) Select a .TIFF image stack to be processed **
 - A .TIFF stack is a collection of images stored within one file, and often contains images across a Z axis
 - The output will be generated in an output folder in the same location as the .TIFF file so please ensure that there is enough diskspace to do so.
 2) Define the desired `threshold` between 0.1 and 0.9 
