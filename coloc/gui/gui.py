@@ -54,25 +54,27 @@ class MyTableWidget(QWidget):
         # Set instruction labels
         self.introLabel1 = QLabel('Welcome to Auto-Colloc-GUI!')
         self.introLabel1.setFont(QFont('Ariel',weight=QFont.Bold))
-        self.introLabel2 = QLabel('\nInput .tif multiple channel fluorescent image data to run the automated colocalisation analysis:')
+        self.introLabel2 = QLabel('\nInput .tif fluorescent image data and select image scale:')
         self.introLabel2.setFont(QFont('Ariel',italic=True))
-        self.introLabel3 = QLabel('\nDefine colocalisation parameters including clustering threshold and statistical analysis type:')
+        self.introLabel3 = QLabel('\nDefine image analysis parameters to run model:')
         self.introLabel3.setFont(QFont('Ariel',italic=True))
+        self.introLabel4 = QLabel('\nSelect statistical method(s) for image analysis:')
+        self.introLabel4.setFont(QFont('Ariel',italic=True))
 
         # Create widgets for the setup tab inlcuding: labels, buttons, dropdowns, checkboxes, int input windows.
         self.openFile1 = QPushButton("Open File")
-        self.openFile1Label = QLabel('Select Input Images (.tif):')
+        self.openFile1Label = QLabel('Select Input Images (.tif/.tiff):')
         self.fileLabel1 = QLabel()
         self.fileLabel1.setMaximumWidth(300)
+        self.scaleDropdown = QComboBox()
+        self.scaleDropdownLabel = QLabel("Select scale of image (in \u03BCm):")
+        self.scaleDropdown.addItems(["--Image Scale--", "1 ", "10", "50", "100", "500"])
         self.thresholdDropdown = QComboBox()
         self.thresholdLabel = QLabel('Select Threshold Value:')
         self.thresholdDropdown.addItems(["--Threshold Value--", "0.1 ", "0.2", "0.3", "0.4", "0.5 ", "0.6", "0.7", "0.8", "0.9"])
         self.channelsDropdown = QComboBox()
         self.channelsDropdownLabel = QLabel('Select Number of Channels:')
         self.channelsDropdown.addItems(["--Channel Number--", "1 ", "2", "3"])
-        self.scaleDropdown = QComboBox()
-        self.scaleDropdownLabel = QLabel("Select rough scale of image (in 'mu: \u03BC'):")
-        self.scaleDropdown.addItems(["--Image Scale--", "1 ", "10", "50", "100", "500"])
         self.inputClusterNo = QPushButton("Select Value")
         self.inputClusterNoLabel = QLabel('Input Cluster Number:')
         self.clusterNoLabel = QLabel()
@@ -91,22 +93,23 @@ class MyTableWidget(QWidget):
         self.tab1.layout.addWidget(self.openFile1, 4, 3)
         self.tab1.layout.addWidget(self.openFile1Label, 4, 2)
         self.tab1.layout.addWidget(self.fileLabel1, 4, 4, 1, 4)
-        self.tab1.layout.addWidget(self.introLabel3, 5, 2, 1, 2)
-        self.tab1.layout.addWidget(self.thresholdDropdown, 6, 3)
-        self.tab1.layout.addWidget(self.thresholdLabel, 6, 2)
-        self.tab1.layout.addWidget(self.channelsDropdown, 7, 3)
-        self.tab1.layout.addWidget(self.channelsDropdownLabel, 7, 2)
-        self.tab1.layout.addWidget(self.scaleDropdown, 8, 3)
-        self.tab1.layout.addWidget(self.scaleDropdownLabel, 8, 2)
+        self.tab1.layout.addWidget(self.scaleDropdown, 5, 3)
+        self.tab1.layout.addWidget(self.scaleDropdownLabel, 5, 2)
+        self.tab1.layout.addWidget(self.introLabel3, 6, 2, 1, 2)
+        self.tab1.layout.addWidget(self.thresholdDropdown, 7, 3)
+        self.tab1.layout.addWidget(self.thresholdLabel, 7, 2)
+        self.tab1.layout.addWidget(self.channelsDropdown, 8, 3)
+        self.tab1.layout.addWidget(self.channelsDropdownLabel, 8, 2)
         self.tab1.layout.addWidget(self.inputClusterNo, 9, 3)
         self.tab1.layout.addWidget(self.inputClusterNoLabel, 9, 2)
         self.tab1.layout.addWidget(self.clusterNoLabel, 9, 4, 1, 4)
-        self.tab1.layout.addWidget(self.intensitycorrCheckbox, 10, 3)
-        self.tab1.layout.addWidget(self.intensitycorrLabel, 10, 2)
-        self.tab1.layout.addWidget(self.kmeansCheckbox, 11, 3)
-        self.tab1.layout.addWidget(self.kmeansLabel, 11, 2)
-        self.tab1.layout.addWidget(self.runButton, 12, 6)
-        self.tab1.layout.addWidget(self.cancelButton, 12, 5)
+        self.tab1.layout.addWidget(self.introLabel4, 10, 2, 1, 2)
+        self.tab1.layout.addWidget(self.intensitycorrCheckbox, 11, 3)
+        self.tab1.layout.addWidget(self.intensitycorrLabel, 11, 2)
+        self.tab1.layout.addWidget(self.kmeansCheckbox, 12, 3)
+        self.tab1.layout.addWidget(self.kmeansLabel, 12, 2)
+        self.tab1.layout.addWidget(self.runButton, 13, 6)
+        self.tab1.layout.addWidget(self.cancelButton, 13, 5)
         self.tab1.setLayout(self.tab1.layout)
 
         # Disable/'grey-out' widgets
@@ -163,7 +166,7 @@ class MyTableWidget(QWidget):
         self.loading = QLabel()
         self.gif = QMovie('loading.gif')
         self.loading.setMovie(self.gif)
-        self.tab1.layout.addWidget(self.loading, 12, 7)
+        self.tab1.layout.addWidget(self.loading, 13, 7)
         self.gif.start()
 
     def stop_animation(self):
@@ -240,7 +243,7 @@ class MyTableWidget(QWidget):
         analysisMsg.setWindowTitle("Input Error")
 
         # Set conditions for error messages to be delivered. Set booleans for check_error function to read. 
-        if self.in_path is 'Empty' or os.path.splitext(self.in_path)[1] not in ['.tif']:
+        if self.in_path is 'Empty' or os.path.splitext(self.in_path)[1] not in ['.tif', '.tiff']:
             inputMsg.exec_()
             return False
         elif self.threshold_value in ['--Threshold Value--'] or self.channels_value in ['--Channel Number--'] or self.scale_value in ['--Image Scale--'] or len(self.clusterNoLabel.text()) == 0:
