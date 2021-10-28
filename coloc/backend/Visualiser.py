@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import numpy as np
 import math
-from ..backend.preprocessingclass import do_process
+from ..backend.preprocessingclass import do_preprocess
 
 def correlate(preprocessed, channels, num_clusts):
     """Returns the centres of clusters based on their PMCC.
