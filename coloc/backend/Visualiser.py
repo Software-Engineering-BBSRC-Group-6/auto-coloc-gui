@@ -1,19 +1,17 @@
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import numpy as np
-from math import dist
+import math
 import preprocessingclass
 
 def correlate(preprocessed, channels, num_clusts):
     """Returns the centres of clusters based on their PMCC.
-
     :param preprocessed: Preprocessed image data
     :type preprocessed: numpy array
     :param channels: List of indices referring to the populated channels in the data
     :type channels: list of integers of length 2.
     :param num_clusts: Number of clusters to output
     :type num_clusts: integer
-
     :return out: Intensity Correlation Analysis (ICA) array for every pixel in the image.
     :type out: numpy array
     :return clusts: List of (x, y) coordinates of cluster centres.
@@ -39,12 +37,10 @@ def correlate(preprocessed, channels, num_clusts):
 
 def fit_clusters(im, num_clusters,threshold):
     """Fits a series of k-means clusters using Scikit-Learn.
-
     :param im: image data
     :type im: numpy array of dims (heightxwidthxn-channels)
     :param num_clusters: Number of clusters to fit the data to.
     :type num_clusters: int
-
     :return clusts: Coordinates of the centres of clusters
     :type clusts: list of tuples? # NB check this
     """
@@ -62,12 +58,10 @@ def fit_clusters(im, num_clusters,threshold):
 
 def compare_dists(ch1_clusters, ch2_clusters, max_dist):
     """Compares the distances between centroids of channel 1 and 2 clusters.
-
     :param ch1_clusters: List of the coordinates of all cluster centres for channel 1
     :type ch1_clusters: list of tuples (x, y)
     :param ch2_clusters: List of the coordinates of all cluster centres for channel 2
     :type ch2_clusters: list of tuples (x, y)
-
     :return euc_dists: Euclidean distances between the cluster centres
     """
     n = 0
@@ -76,7 +70,7 @@ def compare_dists(ch1_clusters, ch2_clusters, max_dist):
         raise ValueError("Unequal cluster vectors")
     for _, c1_clust in enumerate(ch1_clusters):      
         for _,c2_clust in enumerate(ch2_clusters):
-            centroid_dist = dist(c1_clust, c2_clust)  # Compute euclidean distance
+            centroid_dist = math.dist(c1_clust, c2_clust)  # Compute euclidean distance
             if centroid_dist < max_dist:          # Check vs. threshold distance criterion
                 euc_dists["Pair %s" % (n)] = {}
                 # Record distance between cluster centroids. 
@@ -90,14 +84,12 @@ def compare_dists(ch1_clusters, ch2_clusters, max_dist):
 def get_colocs(im, channels, num_clusts, max_dist,threshold):
     """Compare two chanels of an image and return the set of KMeans cluster centroids.
     Centroids fall within a minimum distance of one another.
-
     :param im: Image data to compare
     :type im: Numpy array of shape (height x width x channels)
     :param num_clusts: Number of clusters to fit to the image
     :type num_clusts: int
     :param max_dist: Maximum allowed distance between cluster centres.
     :type max_dist: float
-
     :return euc_dists: Average positions of cluster centres for cluster positions closest to each other.
     :type euc_dists: list of tuples
     """
@@ -122,7 +114,6 @@ def annotate(ax, title, coords=False):
     :type title: string
     :param coords: Coordinates to plot the circle(s) at
     :type list: tuple of tuples (y, x)
-
     """
     if coords:
         for y, x in coords:
@@ -136,7 +127,6 @@ def annotate(ax, title, coords=False):
 
 def plot(original,denoised, clusters, output_dir, filename):
     """Plots an image, draws cluster markings on, and saves the figure.
-
     :param original: Input image data
     :type original: Numpy array of shape (height x width x channels)
     :param denoised: Denoised image data
@@ -262,7 +252,3 @@ if __name__=="__main__":
     'Run KMeans': 'Y'}
     
     run_visualiser(inputdict)
-    
-
-
-    
