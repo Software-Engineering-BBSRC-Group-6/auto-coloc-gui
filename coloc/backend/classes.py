@@ -32,6 +32,7 @@ class pipeline_object():
             raise TypeError('Invalid type for threshold.')
         self.threshold = threshold
         im = Image.open(self.filepath)
+        im=im.convert('RGB')
         self.image_obj = im
         self.smallest_dim = min(self.image_obj.size)
 

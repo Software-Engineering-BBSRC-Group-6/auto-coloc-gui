@@ -4,7 +4,7 @@ import classes
 
 def do_preprocess(sourcefile, outpath, threshold=False, visualise=False):
     pipeline_full = classes.pipeline_object(sourcefile, outpath, threshold)
-    pipeline_original = classes.pipeline_object(sourcefile, outpath, threshold)
+    pipeline_original = classes.pipeline_object(sourcefile, outpath,threshold=False)
 
     pipeline_full.split()
     pipeline_original.split()
@@ -12,7 +12,7 @@ def do_preprocess(sourcefile, outpath, threshold=False, visualise=False):
     pipeline_full.reshape()
     pipeline_original.reshape()
     pipeline_full.normalise_all()
-
+    pipeline_original.normalise_all()
     if visualise:
         pipeline_full.visualise()
 

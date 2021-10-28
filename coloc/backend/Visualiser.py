@@ -31,7 +31,7 @@ def correlate(preprocessed, channels, num_clusts):
     for x in range(shape[0]):
         for y in range(shape[1]):
             out[x, y] = (chan1[x, y] - mu1)*(chan2[x, y] - mu2)
-
+    print("\tTotal fluorescence overlap: {:.2e}".format(np.sum(out)))
     idx = np.unravel_index(np.argsort(out.ravel())[-num_clusts:], shape)  # Pull out the locations of the max values
     clusts = [(idx[0][i], idx[1][i]) for i in range(num_clusts)]    # Convert to tuple of coordinates
     return clusts
@@ -53,7 +53,8 @@ def fit_clusters(im, num_clusters,threshold):
     out = []
     for x in range(xrange):
         for y in range(yrange):
-            if im[x,y]>threshold * np.max(im):
+            # if im[x,y]>threshold * np.max(im):
+            if im[x,y]!=0:
                 out.append([x, y]) 
     kmeans = KMeans(n_clusters=num_clusters, n_init=5, init='k-means++').fit(out)
 
@@ -108,7 +109,7 @@ def get_colocs(im, channels, num_clusts, max_dist,threshold):
     if chan1.shape != chan2.shape:
         raise ValueError("Input arrays must have the same shape")
     
-    c1_clusters = fit_clusters(chan1, num_clusts,threshold)
+    c1_clusters = fit_clusters(chan1, num_clusts,threshold) # Drop requirement for threshold
     c2_clusters = fit_clusters(chan2, num_clusts,threshold)
 
     return compare_dists(c1_clusters, c2_clusters, max_dist)
@@ -146,6 +147,7 @@ def plot(original,denoised, clusters, output_dir, filename):
     :param filename: Name to output file as
     :type filename: string
     """
+
     fig, ax = plt.subplots(1, 2)
     fig.suptitle("Intensity Correlation Analysis")
     ax[0].imshow(original)
@@ -155,7 +157,7 @@ def plot(original,denoised, clusters, output_dir, filename):
         annotate(axis, titles[a], clusters)
     plt.savefig(output_dir+filename)
     # plt.show()        # Retained for debugging
-
+    plt.close(fig)
 
 def plot_kmeans(original, denoised, clusters, output_dir, filename):
     """Plots circles corresponding to overlapping kmeans centroids in the data
@@ -177,6 +179,8 @@ def plot_kmeans(original, denoised, clusters, output_dir, filename):
 
     plt.savefig(output_dir+ filename)
     # plt.show()
+    plt.close(fig)
+    
 
 def run_visualiser(input_dict):
     # Get parameters from user input
@@ -195,8 +199,8 @@ def run_visualiser(input_dict):
 
     print("Preprocessing")
 
-    original, preprocessed = preprocessingclass.do_preprocess(sourcefile, input_dict['threshold'])
-    original = original.frames.astype(int)
+    original, preprocessed = preprocessingclass.do_preprocess(sourcefile, input_dict['out_path'],threshold=input_dict['threshold'])
+    original = (original.frames*255).astype(int)
     preprocessed = (preprocessed.frames*255).astype(int)
 
     print("Complete")
@@ -207,11 +211,14 @@ def run_visualiser(input_dict):
         # for n in [3, 8,9]:   # For debugging only
             orig = original[:, :, :, n]
             denoised = preprocessed[:, :, :, n]
+            print("\tDenoised maxval: ",np.max(denoised))
+            print("\tOriginal maxval: ",np.max(orig))
             print("\tRunning Intensity Correlation Analysis")
             corr_clusts = correlate(denoised, input_dict['channels'], input_dict['num_clusts'])
             plot(orig, denoised, corr_clusts, output_dir, "/0%s_ICA" % n)
             print("\tSaved")
             print("\tRunning KMeans")
+
             try:
                 kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'],input_dict['threshold'])
                 plot_kmeans(orig, denoised, kmeans_clusts, output_dir,"/0%s_kmeans" % n)
@@ -251,13 +258,13 @@ def run_visualiser(input_dict):
 
 if __name__=="__main__":
     inputdict = {
-    'in_path': './data/input/colocsample1bRGB_BG.tif',
-    # 'in_path': './data/input/Composite_12156.tif',       # Other .tif files not working, need to check array shape/preprocessed is consistent
+    # 'in_path': './data/input/colocsample1bRGB_BG.tif',
+    'in_path': './data/input/Composite_12156.tif',       # Other .tif files not working, need to check array shape/preprocessed is consistent
     'out_path': './data/output',
     'threshold': 0.5,
     'channels': [0,1],
-    'num_clusts': 10,
-    'min_dist': 10,
+    'num_clusts': 5,
+    'min_dist': 20,
     'Run Intensity Correlation Analysis': 'Y',
     'Run KMeans': 'Y'}
     
