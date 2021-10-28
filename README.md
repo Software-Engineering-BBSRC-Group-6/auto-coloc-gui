@@ -13,8 +13,6 @@
 
 An open source desktop image processing tool written in Python to automate the analysis of multichannel flourescence images to quantify colocalisation available on Windows, Mac OS and Debian Linux.
 
-[ReadTheDocs detailed documentation](https://auto-coloc-gui.readthedocs.io/en/main/)
-
 
 ## Authors
 
@@ -24,8 +22,11 @@ Dan Hudson - alexander.hudson@dtc.ox.ac.uk \
 Ishaan Kapoor - ishaan.kapoor@dtc.ox.ac.uk \
 Joseph Pollacco - joseph.pollacco@dtc.ox.ac.uk \
 Samuel Johnson - samuel.johnson@dtc.ox.ac.uk
+
 # User Guide
 The tool accepts .TIFF formatted images with two or more colour channels and uses a statistical model to indicate regions of interest (ROIs) where flourophores colocalise. The tool comes with a user friendly interface which allows users to customise thresholds and distances across which colocolisation could be calculated. This tool serves to be a python based alternative to [ImageJ](https://imagej.nih.gov/ij/) and the [EzColocalization plugin](https://www.nature.com/articles/s41598-018-33592-8).
+
+For more detailed documentation on the specific functions contained within the software, please visit [ReadTheDocs](https://auto-coloc-gui.readthedocs.io/en/main/)
 
 ## Installation
 Please find the appropriate installation executable for your operating system within the dist folder. As of release, the software has been validated to work on (as per systems compatibility testing):
@@ -35,14 +36,14 @@ Please find the appropriate installation executable for your operating system wi
 ## Usage
 1) Select a .TIFF image stack to be processed
 - A .TIFF stack is a collection of images stored within one file, and often contains images across a Z axis
-- The output will be generated in an output folder in the same location as the .TIFF file so please ensure that there is enough diskspace to do so.
-2) Define the desired `threshold` between 0.1 and 0.9 
-- Threshold refers to the degree pixel noise filtering
+- The output will be generated in an output folder in the same location as the .TIFF file, please ensure that there is enough diskspace to do so.
+2) Define the desired `threshold` between 0.1 and 0.9.
+- Threshold refers to the degree of pixel noise filtering
 3) Select the number of `channels` in the image (1, 2, or 3).
 - Channels indicates how many colour spaces from the RGB spectrum are available. For example, cells stained with GFP and Texas Red would require 2 channels. 
 4) Select the `scale` of the images between 1μM and 500μM.
 5) Define the desired number of `clusters` between 10 and 50.
-- Determines the number of colocalisations detected.
+- Clusters determines the number of colocalisations detected.
 6) Specify the `type of analysis` - Intensity correlation analysis (based on fluoresence correlation) OR [Kmeans](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html) analysis (groups datapoints which are similar).
 7) Press `run` - model run time can vary based on local resources.
 8) Click on the `view` tab to view the original and denoised image side by side.
