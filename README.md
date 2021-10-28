@@ -13,7 +13,8 @@
 
 An open source desktop image processing tool written in Python to automate the analysis of multichannel flourescence images to quantify colocalisation available on Windows, Mac OS and Debian Linux.
 
-[ReadTheDocs detailed documentation here](https://software-engineering-bbsrc-group-6.github.io/auto-coloc-gui/)
+[ReadTheDocs detailed documentation here](https://auto-coloc-gui.readthedocs.io/en/main/)
+
 
 ## Authors
 
@@ -85,6 +86,7 @@ This repository contains the following key files and folders:
 * .gitignore: file controlling which files are/are not updated by git during development
 * requirements.txt: Dependencies required for proper package functioning
 * setup: allows for setup via requirements.txt
+
 
 ## Issues and futher development
 
