@@ -55,7 +55,7 @@ def fit_clusters(im, num_clusters,threshold):
         for y in range(yrange):
             if im[x,y]>threshold * np.max(im):
                 out.append([x, y]) 
-    kmeans = KMeans(n_clusters=num_clusters, n_init=10, init='k-means++').fit(out)
+    kmeans = KMeans(n_clusters=num_clusters, n_init=5, init='k-means++').fit(out)
 
     return np.asarray(kmeans.cluster_centers_).astype('int')
 
@@ -74,8 +74,8 @@ def compare_dists(ch1_clusters, ch2_clusters, max_dist):
     euc_dists = {}
     if len(ch1_clusters) != len (ch2_clusters):
         raise ValueError("Unequal cluster vectors")
-    for n, c1_clust in enumerate(ch1_clusters):      
-        for n2,c2_clust in enumerate(ch2_clusters):
+    for _, c1_clust in enumerate(ch1_clusters):      
+        for _,c2_clust in enumerate(ch2_clusters):
             centroid_dist = dist(c1_clust, c2_clust)  # Compute euclidean distance
             if centroid_dist < max_dist:          # Check vs. threshold distance criterion
                 euc_dists["Pair %s" % (n)] = {}
@@ -83,6 +83,7 @@ def compare_dists(ch1_clusters, ch2_clusters, max_dist):
                 euc_dists["Pair %s"%(n)]["Chan1"]=c1_clust.astype(int)
                 euc_dists["Pair %s"%(n)]["Chan2"]=c2_clust.astype(int)
                 euc_dists["Pair %s"%(n)]["Avg"]=list(reversed(np.mean([c1_clust,c2_clust],axis=0).astype(int)))
+                n+=1
     return euc_dists
 
 
@@ -153,7 +154,7 @@ def plot(original,denoised, clusters, output_dir, filename):
     for a, axis in enumerate(ax):
         annotate(axis, titles[a], clusters)
     plt.savefig(output_dir+filename)
-    plt.show()        # Retained for debugging
+    # plt.show()        # Retained for debugging
 
 
 def plot_kmeans(original, denoised, clusters, output_dir, filename):
@@ -175,7 +176,7 @@ def plot_kmeans(original, denoised, clusters, output_dir, filename):
         axis.axis("off")
 
     plt.savefig(output_dir+ filename)
-    plt.show()
+    # plt.show()
 
 def run_visualiser(input_dict):
     # Get parameters from user input
@@ -198,43 +199,55 @@ def run_visualiser(input_dict):
     original = original.frames.astype(int)
     preprocessed = (preprocessed.frames*255).astype(int)
 
+    print("Complete")
+    print("Running fluorescence colocalisation analysis")
     if (input_dict["Run Intensity Correlation Analysis"] == 'Y') and (input_dict["Run KMeans"] == 'Y'):
-        # for n in range(original.shape[-1]):
-            
-        for n in [3, 8,9]:   # For debugging only
+        for n in range(original.shape[-1]):
+            print("\nProcessing Image %s/%s"%(str(n+1),str(original.shape[-1]-1)))
+        # for n in [3, 8,9]:   # For debugging only
             orig = original[:, :, :, n]
             denoised = preprocessed[:, :, :, n]
-
+            print("\tRunning Intensity Correlation Analysis")
             corr_clusts = correlate(denoised, input_dict['channels'], input_dict['num_clusts'])
-            plot(orig, denoised, corr_clusts, output_dir, "/img%s_original_corr" % n)
+            plot(orig, denoised, corr_clusts, output_dir, "/0%s_ICA" % n)
+            print("\tSaved")
+            print("\tRunning KMeans")
             try:
                 kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'],input_dict['threshold'])
-                plot_kmeans(orig, denoised, kmeans_clusts, output_dir,"/img%s_original_kmeans" % n)
+                plot_kmeans(orig, denoised, kmeans_clusts, output_dir,"/0%s_kmeans" % n)
             except ValueError:
-                print("No clusters found for image %s"%(str(n)))
-                plot_kmeans(orig, denoised, None, output_dir,"/img%s_original_kmeans" % n)
+                print("\tNo clusters found within %s pixels for image %s"%(input_dict['min_dist'], str(n)))
+                plot_kmeans(orig, denoised, None, output_dir,"/0%s_kmeans" % n)
+            print("\tSaved")
         
     elif (input_dict["Run Intensity Correlation Analysis"] == 'Y') and (input_dict["Run KMeans"] == 'N'):
         for n in range(original.shape[-1]):
+            print("\nProcessing Image %s/%s"%(str(n+1),str(original.shape[-1]-1)))
         # for n in [8,9]:   # For debugging only
             orig = original[:, :, :, n]
             denoised = preprocessed[:, :, :, n].astype(int)
+            print("\tRunning Intensity Correlation Analysis")
             corr_clusts = correlate(denoised, input_dict['channels'], input_dict['num_clusts'])
-            plot(orig,denoised,corr_clusts,output_dir,"/img%s_original_corr" % n)
+            plot(orig,denoised,corr_clusts,output_dir,"/0%s_ICA" % n)
+            print("\tSaved")
 
     elif (input_dict["Run Intensity Correlation Analysis"] == 'N') and (input_dict["Run KMeans"] == 'Y'):
         for n in range(original.shape[-1]):
+            print("\nProcessing Image %s/%s"%(str(n+1),str(original.shape[-1]-1)))
         # for n in [8,9]:   # For debugging only
             orig = original[:, :, :, n]
             denoised = preprocessed[:, :, :, n]
+            print("\tRunning KMeans")
             try:
                 kmeans_clusts = get_colocs(denoised, input_dict['channels'], input_dict['num_clusts'], input_dict['min_dist'],input_dict['threshold'])
-                plot_kmeans(orig, denoised, kmeans_clusts, output_dir,"/img%s_original_kmeans" % n)
+                plot_kmeans(orig, denoised, kmeans_clusts, output_dir,"/0%s_kmeans" % n)
             except ValueError:
-                print("No clusters found for image %s"%(str(n)))
-                plot_kmeans(orig, denoised, None, output_dir,"/img%s_original_kmeans" % n)
+                print("\tNo clusters found within %s pixels for image %s"%(input_dict['min_dist'], str(n)))
+                plot_kmeans(orig, denoised, None, output_dir,"/0%s_kmeans" % n)
+            print("\tSaved")
     else:
-        raise KeyError("Please select a method for colocalisation analysis") 
+        raise KeyError("Please select a method for colocalisation analysis")
+    print("Complete") 
 
 if __name__=="__main__":
     inputdict = {
