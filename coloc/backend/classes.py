@@ -32,7 +32,6 @@ class pipeline_object():
             raise TypeError('Invalid type for threshold.')
         self.threshold = threshold
         im = Image.open(self.filepath)
-        im=im.convert('RGB')
         self.image_obj = im
         self.smallest_dim = min(self.image_obj.size)
 
@@ -65,18 +64,18 @@ class pipeline_object():
         self.frames = np.empty((self.image_obj.size[1], self.image_obj.size[0], 3, self.num_frames))
         for i in range(self.num_frames):
             self.image_obj.seek(i)
-            self.frames[:, :, :, i] = np.asarray(self.image_obj)
+            tempimg = self.image_obj
+            #tempimg = self.image_obj.convert('RGB')
+            self.frames[:, :, :, i] = np.asarray(tempimg)
 
         return
 
     def normalise(self, j):
-        """Minmax rescale a 2D image at indices (i, j), where
-        j is the channel index and i the frame index.
+        """Minmax rescale a 2D image at index j, where
+        j is the channel index.
 
         :param j: index of channel
         :type j: integer
-        :param i: index of frame
-        :type i: integer
 
         :raises ValueError: Cannot process images that have less or more than 2 dimensions
 
