@@ -31,8 +31,7 @@ jobs:
         python3 -m pytest coloc/tests/test-proc.py
     - name: Check coverage
       run: |
-        coverage run -m pytest coloc/tests/test-preproc.py
-        coverage run -m pytest coloc/tests/test-proc.py
+        coverage run -m pytest
     - name: Run codecov
       if: success()
       env:
