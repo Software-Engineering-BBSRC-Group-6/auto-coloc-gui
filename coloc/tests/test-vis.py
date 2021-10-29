@@ -2,9 +2,9 @@ import pytest
 import numpy as np
 import matplotlib.pyplot as plt
 try:
-    from ..backend.Visualiser import correlate, fit_clusters, run_visualiser, annotate, scaled_dist
+    from ..backend.Visualiser import correlate, fit_clusters, run_visualiser, annotate, scaled_dist, compare_dists
 except ModuleNotFoundError:
-    from backend.Visualiser import correlate, fit_clusters, run_visualiser, annotate, scaled_dist
+    from backend.Visualiser import correlate, fit_clusters, run_visualiser, annotate, scaled_dist, compare_dists
 
 
 # Tests for visualiser.py
