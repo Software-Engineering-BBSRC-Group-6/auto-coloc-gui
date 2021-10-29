@@ -1,6 +1,9 @@
 # File to test the new pipeline.
 # from ..backend.classes import pipeline_object
-from backend.classes import pipeline_object
+try:
+    from backend.classes import pipeline_object
+except ModuleNotFoundError:
+    ..backend.classes import pipeline_object
 
 
 def do_preprocess(sourcefile, outpath, threshold=False, visualise=False):
