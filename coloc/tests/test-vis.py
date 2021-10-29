@@ -110,12 +110,12 @@ def test_annotate_circle(test):
     annotate(ax, 'Hello', coords=test)
     assert ax.get_lines
 
-@pytest.mark.parametrize('test, expected',
-    [(51,50),
-     (0.5, 1),
-     (15.1, 15)
-     ]
-)
+# @pytest.mark.parametrize('test, expected',
+#     [(51,50),
+#      (0.5, 1),
+#      (15.1, 15)
+#      ]
+# )
 # def test_scale_dist(test, expected):
 #     pix_dist = 1
 #     assert scaled_dist(test) == expected
