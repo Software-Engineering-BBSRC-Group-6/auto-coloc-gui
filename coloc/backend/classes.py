@@ -4,16 +4,17 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import tifffile
 
 
 class pipeline_object():
     """Pipeline object class. Any input .tiff image becomes an instance of this class.
     The class operates using its methods to move an image through the pipeline.
-    
+
 
     :param inpath: File path of image in directory
     :type inpath: string or os.path
-    :param outpath: 
+    :param outpath:
     :type outpath:
     :param threshold: threshold, defaults to False
     :type threshold: bool, optional
@@ -24,16 +25,17 @@ class pipeline_object():
             raise ValueError('File to be accessed does not exist.')
         elif not(inpath[-3:] != 'tif' or inpath[-4:] != 'tiff'):
             raise ValueError('File is not a .tif or .tiff.')
-        
+
         self.filepath = inpath
         self.outpath = outpath
         self.timestamp = (datetime.now()).strftime('%Y%m%d-%H%M%S')
         if ((not isinstance(threshold, float)) and (threshold is not False)):
             raise TypeError('Invalid type for threshold.')
         self.threshold = threshold
-        im = Image.open(self.filepath)
-        self.image_obj = im
-        self.smallest_dim = min(self.image_obj.size)
+        im = tifffile.imread(self.filepath)
+        #im = Image.open(self.filepath)
+        self.frames = np.moveaxis(im, (0, 1, 2, 3), (3, 2, 0, 1))
+        self.smallest_dim = min(self.frames.shape[0:2])
 
     def reshape(self):
         """Reshapes an image such that the dimensions are square, using the dimension
@@ -42,9 +44,9 @@ class pipeline_object():
         :return: resized image
         :rtype: class object, image array
         """
-        
+
         # Find smallest dimension n and set image size to square n x n.
-        newframes = np.empty((self.smallest_dim, self.smallest_dim, 
+        newframes = np.empty((self.smallest_dim, self.smallest_dim,
                              self.frames.shape[2], self.frames.shape[3]))
         for i in range(self.frames.shape[3]):
             for j in range(self.frames.shape[2]):
@@ -56,7 +58,7 @@ class pipeline_object():
 
     def split(self):
         """Split input .tiff file into separate RGB slices
-        
+
         :return:
         :rtype:
         """
@@ -64,18 +66,17 @@ class pipeline_object():
         self.frames = np.empty((self.image_obj.size[1], self.image_obj.size[0], 3, self.num_frames))
         for i in range(self.num_frames):
             self.image_obj.seek(i)
-            self.frames[:, :, :, i] = np.asarray(self.image_obj)
-
+            tempimg = self.image_obj
+            self.frames[:, :, :, i] = np.asarray(Image.fromarray(np.uint8(np.asarray(tempimg) / 255)).convert('RGB'))
+            #self.frames[:, :, :, i] = np.asarray(tempimg)
         return
 
     def normalise(self, j):
-        """Minmax rescale a 2D image at indices (i, j), where
-        j is the channel index and i the frame index.
+        """Minmax rescale a 2D image at index j, where
+        j is the channel index.
 
         :param j: index of channel
         :type j: integer
-        :param i: index of frame
-        :type i: integer
 
         :raises ValueError: Cannot process images that have less or more than 2 dimensions
 
@@ -97,13 +98,13 @@ class pipeline_object():
         else:
             self.frames[:, :, j, :] = (im_3D-im_3D.min())/(im_3D.max()-im_3D.min())
             return True
-    
+
     def normalise_all(self):
         """Rescale RGB image using minmax rescaling
 
         :param im_3d: input RGB image
         :type im_3d: numpy array
-        
+
         :return:
         :rtype: bool
         """
@@ -127,11 +128,3 @@ class pipeline_object():
             plt.title("Processed image {0}".format(str(i+1)))
             plt.colorbar()
             plt.show()
-        
-
-
-    
-        
-        
-        
-

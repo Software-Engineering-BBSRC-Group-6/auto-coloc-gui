@@ -1,3 +1,5 @@
 {
-    "autoDocstring.docstringFormat": "sphinx"
+    "autoDocstring.docstringFormat": "sphinx",
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true
 }
