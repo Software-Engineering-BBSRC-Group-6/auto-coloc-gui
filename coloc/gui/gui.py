@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import pyqtSlot
 import os
 import time
-from coloc.backend.Visualiser import run_visualiser # Is this the correct way to call dependencies scripts
+from ..backend.Visualiser import run_visualiser # Is this the correct way to call dependencies scripts
 
 class App(QMainWindow):
 
