@@ -263,15 +263,6 @@ class MyTableWidget(QWidget):
         else:
             return True
 
-    # def cancel_clicked(self):
-    #     ''' 
-    #     This function is activated when the cancel button is clicked. It switches the activation of the run/cancel buttons and terminates
-    #     the loading .gif animation.
-    #     '''
-    #     self.runButton.setDisabled(False)
-    #     self.cancelButton.setDisabled(True)
-    #     self.stop_animation()
-
     def reset_clicked(self):
         ''' 
         This resest the app
