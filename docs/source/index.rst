@@ -31,9 +31,6 @@ Indices and tables
 .. automodule:: classes
     :members:
 
-.. automodule:: preprocessing
-    :members:
-
 .. automodule:: preprocessingclass
     :members:
 
