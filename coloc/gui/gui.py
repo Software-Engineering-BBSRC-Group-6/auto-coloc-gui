@@ -50,7 +50,7 @@ class MyTableWidget(QWidget):
 
         # Define logo label
         self.logo = QLabel()
-        pixmap = QPixmap('acg_logo.png')
+        pixmap = QPixmap('./coloc/acg_logo.png')
         self.logo.setPixmap(pixmap)
 
         # Set instruction labels
@@ -172,7 +172,7 @@ class MyTableWidget(QWidget):
         widget and then starts the .gif file to create movement.
         '''
         self.loading = QLabel()
-        self.gif = QMovie('loading.gif')
+        self.gif = QMovie('./coloc/loading.gif')
         self.loading.setMovie(self.gif)
         self.tab1.layout.addWidget(self.loading, 13, 7)
         self.gif.start()
