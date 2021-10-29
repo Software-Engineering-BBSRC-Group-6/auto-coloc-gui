@@ -42,7 +42,7 @@ Please find the appropriate installation executable for your operating system wi
 3) Select the number of `channels` in the image (1, 2, or 3).
 - Channels indicates how many colour spaces from the RGB spectrum are available. For example, cells stained with GFP and Texas Red would require 2 channels. 
 4) Select the `scale` of the images between 1μM and 500μM.
-- The scale is transformed using the ratio of scale to pixel (image resolution) to automate the pixel distance over which co-occurance of clusters is calculated
+- The scale is transformed using the ratio of scale to pixels (image resolution) to automate the pixel distance over which co-occurance of clusters is calculated
 6) Define the desired number of `clusters` between 10 and 50.
 - Clusters determines the number of colocalisations detected.
 7) Specify the `type of analysis` - Intensity correlation analysis (based on fluorescence correlation) OR [Kmeans](https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html) analysis (groups datapoints which are similar).
