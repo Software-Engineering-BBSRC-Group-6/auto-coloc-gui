@@ -31,9 +31,6 @@ Indices and tables
 .. automodule:: classes
     :members:
 
-.. automodule:: preprocessing
-    :members:
-
 .. automodule:: preprocessingclass
     :members:
 
@@ -45,5 +42,5 @@ Indices and tables
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    :caption: Contents:

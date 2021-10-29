@@ -64,6 +64,7 @@ class pipeline_object():
         self.frames = np.moveaxis(im, (old_pos['f'], old_pos['c'],
                                        old_pos['h'], old_pos['w']),
                                   (3, 2, 0, 1))
+
         self.smallest_dim = min(self.frames.shape[0:2])
 
     def reshape(self):
@@ -101,7 +102,7 @@ class pipeline_object():
 
         if len(np.shape(im_3D)) != 3:
             raise ValueError("Input image should have three dimensions")
-        if im_3D.all() == 0:
+        if im_3D.all() == 0 or (im_3D.max()-im_3D.min() == 0):
             return False
         elif self.threshold:
             im_3D = (im_3D-im_3D.min())/(im_3D.max()-im_3D.min())
