@@ -54,7 +54,7 @@ class MyTableWidget(QWidget):
         self.logo.setPixmap(pixmap)
 
         # Set instruction labels
-        self.introLabel1 = QLabel('Welcome to Auto-Colloc-GUI!')
+        self.introLabel1 = QLabel('Welcome to ACG Tools!')
         self.introLabel1.setFont(QFont('Ariel',weight=QFont.Bold))
         self.introLabel2 = QLabel('\nInput .tif fluorescent image data and select image scale:')
         self.introLabel2.setFont(QFont('Ariel',italic=True))
