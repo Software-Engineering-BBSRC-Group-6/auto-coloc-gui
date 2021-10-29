@@ -4,7 +4,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import pyqtSlot
 import os
 import time
-from ..backend.Visualiser import run_visualiser # Is this the correct way to call dependencies scripts
+from backend.Visualiser import run_visualiser # Is this the correct way to call dependencies scripts
 
 class App(QMainWindow):
 
@@ -34,9 +34,9 @@ class MyTableWidget(QWidget):
         # Initialize tab screen
         self.tabs = QTabWidget()
         self.tab1 = QWidget()
-        self.tab1.setToolTip("Enter the file and parameters for analysis")
+        # self.tab1.setToolTip("Enter the file and parameters for analysis")
         self.tab2 = QWidget()
-        self.tab2.setToolTip("View the results of the model sequentially")
+        # self.tab2.setToolTip("View the results of the model sequentially")
         self.tabs.resize(600,300)
         
         # Add tabs
@@ -403,7 +403,10 @@ class MyTableWidget(QWidget):
         self.previous_button.setEnabled(previous_enable)
         self.next_button.setEnabled(next_enable)
 
-if __name__ == '__main__':
+def run():
     app = QApplication(sys.argv)
     ex = App()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
+
+if __name__ == '__main__':
+    run()
