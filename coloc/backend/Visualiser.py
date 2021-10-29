@@ -68,6 +68,22 @@ def fit_clusters(im, num_clusters):
 
     return np.asarray(kmeans.cluster_centers_).astype('int')
 
+def scaled_dist(max_dist):
+    """Scale the maximum distance between clusters from uM to number of pixels
+    :param max_dist: scale of the input image
+    :type max_dist: int
+
+    :return: maximum distance between clusters for colocalisation
+    :rtype: int
+    """
+    pix_dist = do_preprocess.smallest_dim
+    x = int(max_dist/pix_dist)
+    if x <= 1:
+        max_dist == 1
+    elif x >= 50:
+        max_dist == 50
+    else:
+        max_dist == x
 
 def compare_dists(ch1_clusters, ch2_clusters, max_dist):
     """Compares the distances between centroids of channel 1 and 2 clusters.
