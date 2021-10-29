@@ -83,7 +83,7 @@ This repository contains the following key files and folders:
     * tests: contains unit tests for CI
 * data: directory for data input and output
 * dist: executable installers wil be found here
-- if an executable version cannot be found for your system (we're working to fix this!), you could run the program by running main from the directory coloc
+    * if an executable version cannot be found for your system (we're working to fix this!), you could run the program by running main from the directory coloc
 * docs: files required for automated document production
 * venv: virtual environment configuration including the dependencies for this software
 * .gitignore: file controlling which files are/are not updated by git during development
