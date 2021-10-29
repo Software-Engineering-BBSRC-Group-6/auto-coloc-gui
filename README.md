@@ -88,6 +88,19 @@ This repository contains the following key files and folders:
 * requirements.txt: Dependencies required for proper package functioning
 * setup: allows for setup via requirements.txt
 
+## Limitations and areas for further improvement
+
+There a number of limiatations which could be improved througgh futher iterations of the software
+
+**Graphical User Interface**
+* Zooming and panning functionality is not implemented, thus making image traversal more difficult. 
+* To run multiple analyses, the program requires a full reset each time.
+* There is no way to add or save configuration details for repeated uses and the user has to reinput the paramenters each time.
+
+**Backend**
+* Clusters that would be found across the Z axis are not detected, as the software is only capable of 2D analysis. 
+* The cluster number is equally implemented across the Z axis slices, and not scaled to each slice individually.
+* There is no form of cellular segmentation funcionality in the software. 
 
 ## Issues and futher development
 
