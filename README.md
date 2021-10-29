@@ -33,6 +33,7 @@ Please find the appropriate installation executable for your operating system wi
 * Windows 10
 * MacOS Monterey 
 * Debian Linux Ubuntu LTS 20.04.3
+    * if an executable cannot be found for your system (we're working to fix this!), run the program by running main.py from the directory coloc after cloning the       repository to a local machine or forking the repository to another github account
 ## Usage
 1) Select a .TIFF image stack to be processed
 - A .TIFF stack is a collection of images stored within one file, and often contains images across a Z axis
@@ -83,7 +84,6 @@ This repository contains the following key files and folders:
     * tests: contains unit tests for CI
 * data: directory for data input and output
 * dist: executable installers wil be found here
-    * if an executable version cannot be found for your system (we're working to fix this!), you could run the program by running main from the directory coloc
 * docs: files required for automated document production
 * venv: virtual environment configuration including the dependencies for this software
 * .gitignore: file controlling which files are/are not updated by git during development
