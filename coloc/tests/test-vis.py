@@ -40,10 +40,18 @@ class Vistest():
         assert len(fit_clusters(self.rand2, 1)) == 1
 
         # If no pixels are zeroed out, an error should be thrown
+        # (thresholding is not working )
         with pytest.raises(ValueError):
             fit_clusters(np.ones(np.shape(self.rand2)),1)
+    
+    def test_compare_dists():
+        clust1 = [(1,1),(10,10),(20,20),(40,40)]
+        clust2 = [(1,1),(10,10),(20,20)]
 
-        # (thresholding is not working )
+        with pytest.raises(ValueError):
+            compare_dists(clust1, clust2, 5)
+
+        
     
     def test_run_visualiser(self):
 
@@ -107,6 +115,7 @@ def test_scale_dist(test, expected):
 vis = Vistest()
 vis.test_correlate()
 vis.test_fit_clusters()
+vis.test_compare_dists()
 vis.test_run_visualiser()
 
 
