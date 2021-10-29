@@ -205,7 +205,7 @@ class MyTableWidget(QWidget):
         self.create_channels()
         dict_data["channels"] = self.channel_list
         dict_data["num_clusts"] = int(self.clusterInput)
-        dict_data["min_dist"] = 10/float(self.scaleDropdown.currentText()) #This converts scale in microns to pixel distance between clusters
+        dict_data["max_dist"] = float(self.scaleDropdown.currentText()) #This converts scale in microns to pixel distance between clusters
         dict_data["visualise"] = True
         if self.kmeansCheckbox.isChecked():
             dict_data["Run KMeans"] = "Y"

@@ -162,7 +162,7 @@ def get_colocs(im, channels, num_clusts, max_dist):
     return compare_dists(c1_clusters, c2_clusters, max_dist)
 
 
-def annotate(ax, title, coords=False):
+def annotate(ax, title, coords=False, max_dist):
     """Adds a circle and/title to a given position in an ICA plot.
 
     :param ax: Axis to add the circle
@@ -171,10 +171,12 @@ def annotate(ax, title, coords=False):
     :type title: string
     :param coords: Coordinates to plot the circle(s)
     :type coords: list of tuples (y, x)
+    :param max_dist: Characteristic distance at which clusters are fit to
+    :type max_dist: float
     """
     if coords:
         for y, x in coords:
-            circle = plt.Circle((x, y), 5, color='white', fill=False)
+            circle = plt.Circle((x, y), 1+scaled_dist(max_dist)/2, color='white', fill=False)
             ax.add_artist(circle)
             ax.set_title(title)
             ax.axis("off")
@@ -183,7 +185,7 @@ def annotate(ax, title, coords=False):
         ax.axis("off")
 
 
-def plot(original, denoised, clusters, output_dir, filename):
+def plot(original, denoised, clusters, output_dir, filename, max_dist):
     """Plots a pair of images, draws ICA cluster markings , and saves the figure.
 
     :param original: Input image data
@@ -196,6 +198,8 @@ def plot(original, denoised, clusters, output_dir, filename):
     :type output_dir: string
     :param filename: Name to output file as
     :type filename: string
+    :param max_dist: Characteristic distance at which clusters are fit to
+    :type max_dist: float
     """
 
     fig, ax = plt.subplots(1, 2)
@@ -204,7 +208,7 @@ def plot(original, denoised, clusters, output_dir, filename):
     ax[1].imshow(denoised)
     titles = ['Original', 'Denoised']
     for a, axis in enumerate(ax):
-        annotate(axis, titles[a], clusters)
+        annotate(axis, titles[a], clusters, max_dist)
     plt.savefig(output_dir+filename)
     plt.close(fig)
 
@@ -255,7 +259,7 @@ def run_visualiser(input_dict):
         'threshold': 0.5,
         'channels': [0, 1],
         'num_clusts': 10,
-        'min_dist': 20
+        'max_dist': 20
     }
 
     for key in default_params.keys():
@@ -296,7 +300,7 @@ def run_visualiser(input_dict):
             print("\tRunning Intensity Correlation Analysis")
             corr_clusts = correlate(denoised, input_dict['channels'],
                                     input_dict['num_clusts'])
-            plot(orig, denoised, corr_clusts, output_dir, "/0%s_ICA" % n)
+            plot(orig, denoised, corr_clusts, output_dir, "/0%s_ICA" % n, input_dict['max_dist'])
             print("\tSaved")
             print("\tRunning KMeans")
 
@@ -304,12 +308,12 @@ def run_visualiser(input_dict):
                 kmeans_clusts = get_colocs(denoised,
                                            input_dict['channels'],
                                            input_dict['num_clusts'],
-                                           input_dict['min_dist'])
+                                           input_dict['max_dist'])
                 plot_kmeans(orig, denoised, kmeans_clusts,
                             output_dir, "/0%s_kmeans" % n)
             except ValueError:
                 print("\tNo clusters found within",
-                      " %s pixels for image %s" % (input_dict['min_dist'],
+                      " %s pixels for image %s" % (input_dict['max_dist'],
                                                    str(n)))
                 plot_kmeans(orig, denoised, None,
                             output_dir, "/0%s_kmeans" % n)
@@ -325,7 +329,7 @@ def run_visualiser(input_dict):
             print("\tRunning Intensity Correlation Analysis")
             corr_clusts = correlate(denoised, input_dict['channels'],
                                     input_dict['num_clusts'])
-            plot(orig, denoised, corr_clusts, output_dir, "/0%s_ICA" % n)
+            plot(orig, denoised, corr_clusts, output_dir, "/0%s_ICA" % n, input_dict['max_dist'])
             print("\tSaved")
 
     elif (input_dict["Run Intensity Correlation Analysis"] == 'N') and (input_dict["Run KMeans"] == 'Y'):
@@ -340,12 +344,12 @@ def run_visualiser(input_dict):
                 kmeans_clusts = get_colocs(denoised,
                                            input_dict['channels'],
                                            input_dict['num_clusts'],
-                                           input_dict['min_dist'])
+                                           input_dict['max_dist'])
                 plot_kmeans(orig, denoised, kmeans_clusts,
                             output_dir, "/0%s_kmeans" % n)
             except ValueError:
                 print("\tNo clusters found within",
-                      " %s pixels for image %s" % (input_dict['min_dist'],
+                      " %s pixels for image %s" % (input_dict['max_dist'],
                                                    str(n)))
                 plot_kmeans(orig, denoised, None,
                             output_dir, "/0%s_kmeans" % n)
@@ -363,7 +367,7 @@ if __name__ == "__main__":
         'threshold': 0.5,
         'channels': [0, 1],
         'num_clusts': 10,
-        'min_dist': 20,
+        'max_dist': 20,
         'Run Intensity Correlation Analysis': 'Y',
         'Run KMeans': 'Y'}
     # run_visualiser(inputdict)
