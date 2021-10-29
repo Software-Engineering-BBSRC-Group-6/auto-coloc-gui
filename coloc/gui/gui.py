@@ -91,7 +91,7 @@ class MyTableWidget(QWidget):
         self.kmeansCheckbox.setToolTip("Groups datapoints which are similar")
         self.kmeansLabel = QLabel('Run KMeans Analysis:')
         self.runButton = QPushButton("Run")
-        self.cancelButton = QPushButton("Stop")
+        self.resetButton = QPushButton("Reset")
 
         # Add widgets and define positioning on QGridLayout
         self.tab1.layout.addWidget(self.logo, 1, 3)
@@ -116,11 +116,11 @@ class MyTableWidget(QWidget):
         self.tab1.layout.addWidget(self.kmeansCheckbox, 12, 3)
         self.tab1.layout.addWidget(self.kmeansLabel, 12, 2)
         self.tab1.layout.addWidget(self.runButton, 13, 6)
-        self.tab1.layout.addWidget(self.cancelButton, 13, 5)
+        self.tab1.layout.addWidget(self.resetButton, 13, 5)
         self.tab1.setLayout(self.tab1.layout)
 
         # Disable/'grey-out' widgets
-        self.cancelButton.setDisabled(True)
+        self.resetButton.setDisabled(False)
         self.fileLabel1.setDisabled(True)
         self.clusterNoLabel.setDisabled(True)
             
@@ -131,6 +131,7 @@ class MyTableWidget(QWidget):
         self.openFile1.clicked.connect(self.define_file_path)
         self.inputClusterNo.clicked.connect(self.define_cluster_number)
         self.runButton.clicked.connect(self.run_program)
+        self.resetButton.clicked.connect(self.reset_clicked)
 
         #Tab 2 - Visualiser is created in the activate_visualiser() function
 
@@ -262,14 +263,21 @@ class MyTableWidget(QWidget):
         else:
             return True
 
-    def cancel_clicked(self):
+    # def cancel_clicked(self):
+    #     ''' 
+    #     This function is activated when the cancel button is clicked. It switches the activation of the run/cancel buttons and terminates
+    #     the loading .gif animation.
+    #     '''
+    #     self.runButton.setDisabled(False)
+    #     self.cancelButton.setDisabled(True)
+    #     self.stop_animation()
+
+    def reset_clicked(self):
         ''' 
-        This function is activated when the cancel button is clicked. It switches the activation of the run/cancel buttons and terminates
-        the loading .gif animation.
+        This resest the app
         '''
-        self.runButton.setDisabled(False)
-        self.cancelButton.setDisabled(True)
-        self.stop_animation()
+        os.execl(sys.executable, sys.executable, *sys.argv)
+        
 
     def run_program(self):
         '''
@@ -283,9 +291,6 @@ class MyTableWidget(QWidget):
             # Start loading wheel and disable Run button
             self.start_animation()
             self.runButton.setDisabled(True)
-            self.cancelButton.setDisabled(False)
-            # Define actions if Cancel button is clicked
-            self.cancelButton.clicked.connect(self.cancel_clicked)
             # Create output directory using timestamp and input file path
             timestamp = time.strftime("%Y%m%d-%H%M%S")
             self.out_path = self.out_path + "acg_output_{}".format(timestamp)
@@ -298,7 +303,7 @@ class MyTableWidget(QWidget):
             # Activate the View tab with the visualiser and cancel the loading animation
             # when image analysis is complete
             self.activate_visualiser()
-            self.cancel_clicked()
+            self.resetButton.setDisabled(False)
 
     def activate_visualiser(self):
         '''
