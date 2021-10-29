@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 import tifffile
+import exifread
 
 
 class pipeline_object():
@@ -33,7 +34,37 @@ class pipeline_object():
             raise TypeError('Invalid type for threshold.')
         self.threshold = threshold
         im = tifffile.imread(self.filepath)
-        self.frames = np.moveaxis(im, (0, 1, 2, 3), (3, 2, 0, 1))
+
+        # Find out which dimensions are which and order correctly.
+        with open(self.filepath, 'rb') as f:
+            tags = exifread.process_file(f)
+
+        dims_xyc = {'h': int(tags['Image ImageLength'].printable),
+                    'w': int(tags['Image ImageWidth'].printable),
+                    'c': 3}
+        old_pos = {}
+
+        for k, v in dims_xyc.items():
+            found_idx = im.shape.index(v)
+            if found_idx in old_pos.values():
+                shapecopy = list(im.shape)
+                del shapecopy[found_idx]
+                new_idx = shapecopy.index(v)
+                if new_idx >= found_idx:
+                    old_pos[k] = new_idx + 1
+                else:
+                    old_pos[k] = new_idx
+            else:    
+                old_pos[k] = found_idx
+
+        for v in im.shape:
+            if v not in dims_xyc.values():
+                old_pos['f'] = im.shape.index(v)
+
+        self.frames = np.moveaxis(im, (old_pos['f'], old_pos['c'],
+                                       old_pos['h'], old_pos['w']),
+                                  (3, 2, 0, 1))
+
         self.smallest_dim = min(self.frames.shape[0:2])
 
     def reshape(self):
