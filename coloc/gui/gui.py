@@ -50,7 +50,7 @@ class MyTableWidget(QWidget):
 
         # Define logo label
         self.logo = QLabel()
-        pixmap = QPixmap('acg_logo.png')
+        pixmap = QPixmap('./coloc/acg_logo.png')
         self.logo.setPixmap(pixmap)
 
         # Set instruction labels
