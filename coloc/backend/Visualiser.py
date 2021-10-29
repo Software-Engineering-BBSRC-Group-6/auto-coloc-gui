@@ -2,7 +2,10 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import numpy as np
 import math
-from backend.preprocessingclass import do_preprocess
+try:
+    from backend.preprocessingclass import do_preprocess
+except ModuleNotFoundError:
+    from ..backend.preprocessingclass import do_preprocess
 import os
 
 
