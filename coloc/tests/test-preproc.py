@@ -76,11 +76,11 @@ def test_pipeline_normalise(test):
     np.testing.assert_array_equal(imgcheck,
                                  test_obj.frames[:, :, rnd_channel, :])
 
-test_array = np.zeros(2, 2, 3, 1)
+#test_array = np.zeros((2, 2, 3, 1))
 
 @pytest.mark.parametrize('test, raises',
    [(np.empty((2, 2, 3, 2, 2)), ValueError),
-    (np.zeros(2, 2, 3, 2), None)
+    (np.zeros((2, 2, 3, 2)), None)
    ]
 )
 def test_pipeline_normalise_errors(test, raises):
@@ -89,9 +89,11 @@ def test_pipeline_normalise_errors(test, raises):
     test_obj.frames = test
     
     if raises:
-        pytest.raises(test_obj.normalise_all(), raises)
+        with pytest.raises(raises):
+            test_obj.normalise_all()
     else:
-        assert test_obj.normalise_all() == test
+        test_obj.normalise_all()
+        np.testing.assert_array_equal(test_obj.frames, test)
 
 def test_pipeline_visualise(mocker):
     """Tests that the correct number of plots are produced"""
