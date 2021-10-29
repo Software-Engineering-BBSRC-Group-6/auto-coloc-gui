@@ -60,7 +60,7 @@ def test_pipeline_creation(test):
     ]
 )
 def test_pipeline_normalise(test):
-    """Tests that the pipeline noramlisation method works properly."""
+    """Tests that the pipeline noramlisation method runs properly."""
     test_obj = pipeline_object(test[0], test[1], test[2])
     n_channels = test_obj.frames.shape[2]
     random.seed(1)
@@ -76,10 +76,28 @@ def test_pipeline_normalise(test):
     np.testing.assert_array_equal(imgcheck,
                                  test_obj.frames[:, :, rnd_channel, :])
 
+#test_array = np.zeros((2, 2, 3, 1))
+
+@pytest.mark.parametrize('test, raises',
+   [(np.empty((2, 2, 3, 2, 2)), ValueError),
+    (np.zeros((2, 2, 3, 2)), None)
+   ]
+)
+def test_pipeline_normalise_errors(test, raises):
+    """Tests that the normalisation handles various cases properly."""
+    test_obj = pipeline_object(correctpath, filepath)
+    test_obj.frames = test
+    
+    if raises:
+        with pytest.raises(raises):
+            test_obj.normalise_all()
+    else:
+        test_obj.normalise_all()
+        np.testing.assert_array_equal(test_obj.frames, test)
 
 def test_pipeline_visualise(mocker):
     """Tests that the correct number of plots are produced"""
-    
+
     mocker.patch('matplotlib.pyplot.show', return_value=True)
     mocker.patch('matplotlib.pyplot.imshow', return_value=True)
     mocker.patch('matplotlib.pyplot.colorbar', return_value=True)

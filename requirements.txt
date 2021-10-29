@@ -13,6 +13,7 @@ debugpy==1.5.1
 decorator==5.1.0
 distlib==0.3.1
 docutils==0.17.1
+-e .
 entrypoints==0.3
 filelock==3.0.12
 idna==3.3

@@ -33,7 +33,6 @@ class pipeline_object():
             raise TypeError('Invalid type for threshold.')
         self.threshold = threshold
         im = tifffile.imread(self.filepath)
-        #im = Image.open(self.filepath)
         self.frames = np.moveaxis(im, (0, 1, 2, 3), (3, 2, 0, 1))
         self.smallest_dim = min(self.frames.shape[0:2])
 
@@ -72,7 +71,7 @@ class pipeline_object():
 
         if len(np.shape(im_3D)) != 3:
             raise ValueError("Input image should have three dimensions")
-        if im_3D.all() == 0:
+        if im_3D.all() == 0 or (im_3D.max()-im_3D.min() == 0):
             return False
         elif self.threshold:
             im_3D = (im_3D-im_3D.min())/(im_3D.max()-im_3D.min())
