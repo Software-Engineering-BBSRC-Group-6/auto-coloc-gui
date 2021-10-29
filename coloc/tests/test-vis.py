@@ -113,7 +113,7 @@ def test_annotate_circle(test):
 )
 def test_scale_dist(test, expected):
     pix_dist = 1
-    assert Visualiser.scaled_dist(test) == expected
+    assert scaled_dist(test) == expected
 
 
 vis = Vistest()
