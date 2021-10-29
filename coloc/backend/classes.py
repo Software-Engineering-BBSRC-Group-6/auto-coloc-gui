@@ -56,21 +56,6 @@ class pipeline_object():
         self.frames = newframes
         return
 
-    def split(self):
-        """Split input .tiff file into separate RGB slices
-
-        :return:
-        :rtype:
-        """
-        self.num_frames = self.image_obj.n_frames
-        self.frames = np.empty((self.image_obj.size[1], self.image_obj.size[0], 3, self.num_frames))
-        for i in range(self.num_frames):
-            self.image_obj.seek(i)
-            tempimg = self.image_obj
-            self.frames[:, :, :, i] = np.asarray(Image.fromarray(np.uint8(np.asarray(tempimg) / 255)).convert('RGB'))
-            #self.frames[:, :, :, i] = np.asarray(tempimg)
-        return
-
     def normalise(self, j):
         """Minmax rescale a 2D image at index j, where
         j is the channel index.
