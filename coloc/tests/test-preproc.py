@@ -54,27 +54,6 @@ def test_pipeline_creation(test):
     assert test_obj.outpath == os.path.abspath(os.path.dirname(test[0]))
     assert test_obj.threshold == test[1]
 
-@pytest.mark.parametrize('test',
-    [[correctpath, filepath, 0.01], 
-     [correctpath, filepath, False],
-    ]
-)
-def test_pipeline_normalise(test):
-    """Tests that the pipeline noramlisation method runs properly."""
-    test_obj = pipeline_object(test[0], test[1], test[2])
-    n_channels = test_obj.frames.shape[2]
-    random.seed(1)
-    rnd_channel = random.randrange(n_channels)
-    imgcheck = test_obj.frames[:, :, rnd_channel, :]
-    if not imgcheck.all() == 0:
-        imgcheck = (imgcheck-imgcheck.min())/(imgcheck.max()-imgcheck.min())
-        if test[2]:
-            trim = imgcheck < test[2]
-            imgcheck[trim] = 0
-
-    test_obj.normalise(rnd_channel)
-    np.testing.assert_array_equal(imgcheck,
-                                 test_obj.frames[:, :, rnd_channel, :])
 
 #test_array = np.zeros((2, 2, 3, 1))
 

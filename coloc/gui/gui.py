@@ -54,7 +54,7 @@ class MyTableWidget(QWidget):
         self.logo.setPixmap(pixmap)
 
         # Set instruction labels
-        self.introLabel1 = QLabel('Welcome to Auto-Colloc-GUI!')
+        self.introLabel1 = QLabel('Welcome to ACG Tools!')
         self.introLabel1.setFont(QFont('Ariel',weight=QFont.Bold))
         self.introLabel2 = QLabel('\nInput .tif fluorescent image data and select image scale:')
         self.introLabel2.setFont(QFont('Ariel',italic=True))
@@ -172,7 +172,7 @@ class MyTableWidget(QWidget):
         widget and then starts the .gif file to create movement.
         '''
         self.loading = QLabel()
-        self.gif = QMovie('loading.gif')
+        self.gif = QMovie('./coloc/loading.gif')
         self.loading.setMovie(self.gif)
         self.tab1.layout.addWidget(self.loading, 13, 7)
         self.gif.start()

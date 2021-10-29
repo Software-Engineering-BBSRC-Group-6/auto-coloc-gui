@@ -1,7 +1,11 @@
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt
-from ..backend.Visualiser import correlate, fit_clusters, run_visualiser, annotate, scaled_dist
+try:
+    from ..backend.Visualiser import correlate, fit_clusters, run_visualiser, annotate, scaled_dist, compare_dists
+except ModuleNotFoundError:
+    from backend.Visualiser import correlate, fit_clusters, run_visualiser, annotate, scaled_dist, compare_dists
+
 
 # Tests for visualiser.py
 
@@ -40,10 +44,18 @@ class Vistest():
         assert len(fit_clusters(self.rand2, 1)) == 1
 
         # If no pixels are zeroed out, an error should be thrown
+        # (thresholding is not working )
         with pytest.raises(ValueError):
             fit_clusters(np.ones(np.shape(self.rand2)),1)
+    
+    def test_compare_dists(self):
+        clust1 = [(1,1),(10,10),(20,20),(40,40)]
+        clust2 = [(1,1),(10,10),(20,20)]
 
-        # (thresholding is not working )
+        with pytest.raises(ValueError):
+            compare_dists(clust1, clust2, 5)
+
+        
     
     def test_run_visualiser(self):
 
@@ -75,6 +87,11 @@ class Vistest():
         with pytest.raises(KeyError):
             run_visualiser(tdict5)
 
+vis = Vistest()
+vis.test_correlate()
+vis.test_fit_clusters()
+vis.test_compare_dists()
+vis.test_run_visualiser()
 
 def test_annotate_title():
     _, ax = plt.subplots(1, 1)
@@ -93,20 +110,12 @@ def test_annotate_circle(test):
     annotate(ax, 'Hello', coords=test)
     assert ax.get_lines
 
-@pytest.mark.parametrize('test, expected',
-    [(51,50),
-     (0.5, 1),
-     (15.1, 15)
-     ]
-)
-def test_scale_dist(test, expected):
-    pix_dist = 1
-    assert Visualiser.scaled_dist(test) == expected
-
-
-vis = Vistest()
-vis.test_correlate()
-vis.test_fit_clusters()
-vis.test_run_visualiser()
-
-
+# @pytest.mark.parametrize('test, expected',
+#     [(51,50),
+#      (0.5, 1),
+#      (15.1, 15)
+#      ]
+# )
+# def test_scale_dist(test, expected):
+#     pix_dist = 1
+#     assert scaled_dist(test) == expected
