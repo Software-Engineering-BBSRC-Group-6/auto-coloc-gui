@@ -2,12 +2,11 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import numpy as np
 import math
-from ..backend.preprocessingclass import do_preprocess
+from backend.preprocessingclass import do_preprocess
 import os
 
 def correlate(denoised, channels, num_clusts):
     """Returns the centres of clusters based on Intensity Correlation Analysis (ICA).
-
     :param preprocessed: Preprocessed image data
     :type preprocessed: numpy array
     :param channels: List of indices referring to the populated channels in the data
@@ -68,6 +67,21 @@ def fit_clusters(im, num_clusters):
 
     return np.asarray(kmeans.cluster_centers_).astype('int')
 
+def scaled_dist(max_dist):
+    """Scale the maximum distance between clusters from uM to number of pixels
+    :param max_dist: scale of the input image
+    :type max_dist: int
+    :return: maximum distance between clusters for colocalisation
+    :rtype: int
+    """
+    pix_dist = do_preprocess.smallest_dim
+    x = int(max_dist/pix_dist)
+    if x <= 1:
+        max_dist == 1
+    elif x >= 50:
+        max_dist == 50
+    else:
+        max_dist == x
 
 def compare_dists(ch1_clusters, ch2_clusters, max_dist):
     """Compares the distances between centroids of channel 1 and 2 clusters.
@@ -77,7 +91,6 @@ def compare_dists(ch1_clusters, ch2_clusters, max_dist):
     :type ch2_clusters: list of tuples (x, y)
     :param max_dist: defines distance threshold for definition of clusters as colocalised
     :type max_dist: int
-
     :return euc_dists: Euclidean distances between the cluster centres
     :type euc_dists: dictionary
     """
@@ -135,7 +148,6 @@ def get_colocs(im, channels, num_clusts, max_dist):
 
 def annotate(ax, title, coords=False):
     """Adds a circle and/title to a given position in an ICA plot.
-
     :param ax: Axis to add the circle
     :type ax: matplotlib.pyplot axis object
     :param title: Title to add to the axes
@@ -156,7 +168,6 @@ def annotate(ax, title, coords=False):
 
 def plot(original, denoised, clusters, output_dir, filename):
     """Plots a pair of images, draws ICA cluster markings , and saves the figure.
-
     :param original: Input image data
     :type original: Numpy array of shape (height x width x channels)
     :param denoised: Denoised image data
@@ -182,7 +193,6 @@ def plot(original, denoised, clusters, output_dir, filename):
 
 def plot_kmeans(original, denoised, clusters, output_dir, filename):
     """Plots a pair of images, draws ICA cluster markings , and saves the figure.
-
     :param original: Input image data
     :type original: Numpy array of shape (height x width x channels)
     :param denoised: Denoised image data
@@ -214,7 +224,6 @@ def plot_kmeans(original, denoised, clusters, output_dir, filename):
 
 def run_visualiser(input_dict):
     """ Generates ICA and/or K-means plots in response to user-defined inputs
-
     :param input_dict: User input values
     :type input_dict: dictionary
     """
@@ -339,3 +348,5 @@ if __name__ == "__main__":
         'Run Intensity Correlation Analysis': 'Y',
         'Run KMeans': 'Y'}
     # run_visualiser(inputdict)
+
+
