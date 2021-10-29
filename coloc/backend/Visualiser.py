@@ -5,16 +5,20 @@ import math
 from backend.preprocessingclass import do_preprocess
 import os
 
+
 def correlate(denoised, channels, num_clusts):
-    """Returns the centres of clusters based on Intensity Correlation Analysis (ICA).
+    """Returns the centres of clusters based on Intensity Correlation Analysis
+    (ICA).
 
     :param preprocessed: Preprocessed image data
     :type preprocessed: numpy array
-    :param channels: List of indices referring to the populated channels in the data
+    :param channels: List of indices referring to the populated channels in
+    the data
     :type channels: list of integers of length 2
     :param num_clusts: Number of clusters to output
     :type num_clusts: integer
-    :return out: Intensity Correlation Analysis (ICA) array for every pixel in the image.
+    :return out: Intensity Correlation Analysis (ICA) array for every pixel in
+    the image.
     :type out: numpy array
     :return clusts: List of (x, y) coordinates of cluster centres.
     :type clusts: List of tuples.
@@ -69,13 +73,36 @@ def fit_clusters(im, num_clusters):
     return np.asarray(kmeans.cluster_centers_).astype('int')
 
 
+def scaled_dist(max_dist):
+    """Scale the maximum distance between clusters from uM to number of pixels
+    :param max_dist: scale of the input image
+    :type max_dist: int
+
+    :return: maximum distance between clusters for colocalisation
+    :rtype: int
+    """
+    pix_dist = do_preprocess.smallest_dim
+    x = int(max_dist/pix_dist)
+    if x <= 1:
+        max_dist == 1
+    elif x >= 50:
+        max_dist == 50
+    else:
+        max_dist == x
+
+    return max_dist
+
+
 def compare_dists(ch1_clusters, ch2_clusters, max_dist):
     """Compares the distances between centroids of channel 1 and 2 clusters.
-    :param ch1_clusters: List of the coordinates of all cluster centres for channel 1
+    :param ch1_clusters: List of the coordinates of all cluster centres for
+    channel 1
     :type ch1_clusters: list of tuples (x, y)
-    :param ch2_clusters: List of the coordinates of all cluster centres for channel 2
+    :param ch2_clusters: List of the coordinates of all cluster centres for
+    channel 2
     :type ch2_clusters: list of tuples (x, y)
-    :param max_dist: defines distance threshold for definition of clusters as colocalised
+    :param max_dist: defines distance threshold for definition of clusters
+    as colocalised
     :type max_dist: int
 
     :return euc_dists: Euclidean distances between the cluster centres
@@ -107,7 +134,8 @@ def compare_dists(ch1_clusters, ch2_clusters, max_dist):
 
 
 def get_colocs(im, channels, num_clusts, max_dist):
-    """Compare two chanels of an image and return the set of KMeans cluster centroids.
+    """Compare two chanels of an image and return the set of KMeans cluster
+    centroids.
     Centroids fall within a minimum distance of one another.
     :param im: Image data to compare
     :type im: Numpy array of shape (height x width x channels)
@@ -117,7 +145,8 @@ def get_colocs(im, channels, num_clusts, max_dist):
     :type num_clusts: int
     :param max_dist: Maximum allowed distance between cluster centres
     :type max_dist: float
-    :return euc_dists: Average positions of cluster centres for cluster positions closest to each other.
+    :return euc_dists: Average positions of cluster centres for cluster
+    positions closest to each other.
     :type euc_dists: list of tuples
     """
     if len(channels) != 2:
@@ -198,7 +227,7 @@ def plot_kmeans(original, denoised, clusters, output_dir, filename):
     fig.suptitle("K-means")
     ax[0].imshow(original)
     ax[1].imshow(denoised)
-    titles =['Original','Denoised']
+    titles = ['Original', 'Denoised']
     for a, axis in enumerate(ax):
         if clusters:
             for pair in clusters.keys():
@@ -233,13 +262,12 @@ def run_visualiser(input_dict):
         if key not in input_dict.keys():
             input_dict[key] = default_params[key]
 
-
     if not os.path.isfile(sourcefile):
         raise KeyError("%s does not exist" % (sourcefile))
 
     if not os.path.isdir(output_dir):
         raise KeyError("%s does not exist" % (output_dir))
-    if (input_dict['threshold']==0) or (input_dict['threshold']==1):
+    if (input_dict['threshold'] == 0) or (input_dict['threshold'] == 1):
         raise ValueError("Please enter a threshold between (but not including) 0 and 1 ")
 
     print("=========================================\n",

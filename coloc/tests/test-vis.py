@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt
-from ..backend.Visualiser import correlate, fit_clusters, run_visualiser, annotate
+from ..backend.Visualiser import correlate, fit_clusters, run_visualiser, annotate, scaled_dist
 
 # Tests for visualiser.py
 
@@ -93,8 +93,20 @@ def test_annotate_circle(test):
     annotate(ax, 'Hello', coords=test)
     assert ax.get_lines
 
+@pytest.mark.parametrize('test, expected',
+    [(51,50),
+     (0.5, 1),
+     (15.1, 15)
+     ]
+)
+def test_scale_dist(test, expected):
+    pix_dist = 1
+    assert Visualiser.scaled_dist(test) == expected
+
 
 vis = Vistest()
 vis.test_correlate()
 vis.test_fit_clusters()
 vis.test_run_visualiser()
+
+
