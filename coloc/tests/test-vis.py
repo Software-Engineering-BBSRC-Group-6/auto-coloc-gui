@@ -48,7 +48,7 @@ class Vistest():
         with pytest.raises(ValueError):
             fit_clusters(np.ones(np.shape(self.rand2)),1)
     
-    def test_compare_dists():
+    def test_compare_dists(se;f):
         clust1 = [(1,1),(10,10),(20,20),(40,40)]
         clust2 = [(1,1),(10,10),(20,20)]
 
