@@ -87,6 +87,11 @@ class Vistest():
         with pytest.raises(KeyError):
             run_visualiser(tdict5)
 
+vis = Vistest()
+vis.test_correlate()
+vis.test_fit_clusters()
+vis.test_compare_dists()
+vis.test_run_visualiser()
 
 def test_annotate_title():
     _, ax = plt.subplots(1, 1)
@@ -114,12 +119,3 @@ def test_annotate_circle(test):
 # def test_scale_dist(test, expected):
 #     pix_dist = 1
 #     assert scaled_dist(test) == expected
-
-
-vis = Vistest()
-vis.test_correlate()
-vis.test_fit_clusters()
-vis.test_compare_dists()
-vis.test_run_visualiser()
-
-
