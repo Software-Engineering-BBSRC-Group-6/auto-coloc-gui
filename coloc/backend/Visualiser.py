@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 import numpy as np
 import math
-from ..backend.preprocessingclass import do_preprocess
+from backend.preprocessingclass import do_preprocess
 import os
 
 def correlate(denoised, channels, num_clusts):
